@@ -1,0 +1,15 @@
+\chapter*{要旨}
+深層ニューラルネットワーク（DNN）を用いたエンドツーエンド学習は，コンピュータビジョン（CV）および自然言語処理（NLP）の諸タスクにおいて高い性能を実証している．しかしながら，分散表現に依存するDNNの解釈可能性は依然として限定的であり，ブラックボックスとして扱われることが多い．この透明性の欠如により，DNNが何を，いつ，どのように学習するのかという深層学習のメカニズムに対する深い理解が妨げられている．
+複雑な画像認識タスクは一般的に，複数の意味的な画像概念を並行して学習することを伴い，異なる特徴が様々な時間スケールで学習される．従来研究では形状やテクスチャ特徴の学習が分析されてきたが，これらの概念は通常，与えられたデータセットに基づいて帰納的に定義されており，体系的な分析には制限があった．信頼性の高い分析を行うためには，適切かつ制御可能な難易度レベルと，それらを支持するための十分なデータを有する学習タスクの確立が不可欠である．
+これらの課題に対し，本研究では「数字」と「色」という2つの解釈可能な概念に着目し，サンプル間に固有のノイズを含むEMNIST Digitsデータセットに色情報を付加することで，100クラスの分類タスクを構築した．その上で，標準的な条件下および追加的なラベルノイズ存在下におけるDNN学習プロセスの分析を実施した．
+本研究の結果より，各概念の獲得難度に応じて学習のタイミングが異なること，また異なる概念の学習間に相互作用が存在することが明らかとなった．これらの知見は，深層学習における画像概念の学習プロセスに関する示唆を与えるものであり，画像ベースのタスクを超えた応用可能性を有するとともに，深層学習のダイナミクスの包括的な理解に寄与するものである．
+\newpage
+
+\chapter*{Abstract}
+
+End-to-end learning using deep neural networks (DNNs) has demonstrated high performance across various computer vision (CV) and natural language processing (NLP) tasks. However, the interpretability of DNNs, which rely on distributed representations, remains limited, often rendering them as black boxes. This lack of transparency prevents a deeper understanding of the mechanics of deep learning, specifically regarding what, when, and how DNNs learn.
+In contrast, complex image recognition tasks generally involve learning multiple semantic image concepts in parallel, with different features learned at varying time scales. While previous studies have analyzed the learning of shape and texture features, these concepts are typically defined inductively based on the given dataset, limiting systematic analysis.
+For reliable analysis, it's crucial to establish learning tasks with appropriate, controllable difficulty levels and sufficient data to support them. To address these needs, we focused on two interpretable concepts—"numbers" and "colors"—and developed a classification task with 100 classes by adding color information to the EMNIST Digits dataset, which includes inherent noise across samples. We then analyzed the DNN learning process under standard conditions and with additional label noise.
+Our results reveal that the timing of learning differs depending on the difficulty of acquiring each concept and that there is an interaction between learning different concepts. These findings offer insights into the learning process of image concepts in deep learning, with potential applications beyond image-based tasks, contributing to a broader understanding of deep learning dynamics.
+
+\newpage

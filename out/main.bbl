@@ -1,0 +1,38 @@
+\begin{thebibliography}{1}\itemsep=-1pt
+
+\bibitem{Belkin2018-yx}
+Mikhail Belkin, Daniel Hsu, Siyuan Ma, and Soumik Mandal.
+\newblock Reconciling modern machine learning practice and the bias-variance trade-off.
+\newblock Dec. 2018.
+
+\bibitem{Ge}
+Yunhao Ge, Yao Xiao, Zhi Xu, Xingrui Wang, and Laurent Itti.
+\newblock Contributions of shape, texture, and color in visual recognition.
+\newblock In Shai Avidan, Gabriel~J. Brostow, Moustapha Ciss{\'{e}}, Giovanni~Maria Farinella, and Tal Hassner, editors, {\em ECCV}, pages 369--386, 2022.
+
+\bibitem{Geirhos}
+Robert Geirhos, Patricia Rubisch, Claudio Michaelis, Matthias Bethge, Felix~A. Wichmann, and Wieland Brendel.
+\newblock Imagenet-trained cnns are biased towards texture; increasing shape bias improves accuracy and robustness.
+\newblock In {\em ICLR}, 2019.
+
+\bibitem{Nakkiran2021-vf}
+Preetum Nakkiran, Gal Kaplun, Yamini Bansal, Tristan Yang, Boaz Barak, and Ilya Sutskever.
+\newblock Deep double descent: where bigger models and more data hurt*.
+\newblock {\em J. Stat. Mech.}, 2021(12):124003, Dec. 2021.
+
+\bibitem{Rajnarayan2017-ml}
+Dev Rajnarayan and David Wolpert.
+\newblock {Bias-Variance} trade-offs: Novel applications.
+\newblock In Claude Sammut and Geoffrey~I Webb, editors, {\em Encyclopedia of Machine Learning}, pages 101--110. Springer US, Boston, MA, 2010.
+
+\bibitem{Stephenson}
+Cory Stephenson and Tyler Lee.
+\newblock When and how epochwise double descent happens.
+\newblock {\em CoRR}, abs/2108.12006, 2021.
+
+\bibitem{DD_STB}
+\UTF{9AD9}橋 秀弥, 井上 中順, 横田 理央, 片岡 裕雄, and 前田 英作.
+\newblock 画像識別における形状・テクスチャ偏重度と二重降下現象の関係について.
+\newblock {\em IEICE Conferences Archives}, IEICE-122(IEICE-PRMU-404,IEICE-IBISML-405):IEICE--PRMU--13,IEICE--IBISML--13--IEICE--PRMU--16,IEICE--IBISML--16, Feb. 2023.
+
+\end{thebibliography}

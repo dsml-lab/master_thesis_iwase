@@ -1,0 +1,552 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{k+kn}{import} \PYG{n+nn}{torch}
+\PYG{k+kn}{import} \PYG{n+nn}{torch.nn} \PYG{k}{as} \PYG{n+nn}{nn}
+\PYG{k+kn}{import} \PYG{n+nn}{torch.optim} \PYG{k}{as} \PYG{n+nn}{optim}
+\PYG{k+kn}{import} \PYG{n+nn}{torch.nn.functional} \PYG{k}{as} \PYG{n+nn}{f}
+\PYG{k+kn}{import} \PYG{n+nn}{torch.backends.cudnn} \PYG{k}{as} \PYG{n+nn}{cudnn}
+\PYG{k+kn}{import} \PYG{n+nn}{torchvision}
+\PYG{k+kn}{import} \PYG{n+nn}{torchvision.transforms} \PYG{k}{as} \PYG{n+nn}{transforms}\PYG{p}{;}
+\PYG{k+kn}{from} \PYG{n+nn}{sklearn.metrics} \PYG{k+kn}{import} \PYG{n}{classification\PYGZus{}report}
+\PYG{k+kn}{from} \PYG{n+nn}{sklearn.metrics} \PYG{k+kn}{import} \PYG{n}{accuracy\PYGZus{}score}
+\PYG{k+kn}{import} \PYG{n+nn}{math}
+\PYG{k+kn}{from} \PYG{n+nn}{model} \PYG{k+kn}{import} \PYG{n}{resnet18k}
+\PYG{k+kn}{import} \PYG{n+nn}{torchvision.models} \PYG{k}{as} \PYG{n+nn}{models}
+\PYG{c+c1}{\PYGZsh{} from transformers import ViTForImageClassification}
+
+\PYG{k+kn}{import} \PYG{n+nn}{argparse}
+\PYG{k+kn}{import} \PYG{n+nn}{random}
+\PYG{k+kn}{import} \PYG{n+nn}{matplotlib.pyplot} \PYG{k}{as} \PYG{n+nn}{plt}
+\PYG{k+kn}{import} \PYG{n+nn}{csv}
+\PYG{k+kn}{import} \PYG{n+nn}{warnings}
+\PYG{k+kn}{import} \PYG{n+nn}{os}
+\PYG{k+kn}{import} \PYG{n+nn}{sys}
+\PYG{k+kn}{import} \PYG{n+nn}{wandb}
+\PYG{k+kn}{import} \PYG{n+nn}{numpy} \PYG{k}{as} \PYG{n+nn}{np}
+\PYG{k+kn}{import} \PYG{n+nn}{cv2}
+\PYG{k+kn}{from} \PYG{n+nn}{PIL} \PYG{k+kn}{import} \PYG{n}{Image}
+
+\PYG{k}{def} \PYG{n+nf}{get\PYGZus{}model}\PYG{p}{(}\PYG{n}{args}\PYG{p}{):}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}モデルの読み込み}
+
+\PYG{l+s+sd}{    Arguments:}
+\PYG{l+s+sd}{        args:}
+\PYG{l+s+sd}{    Returns:}
+\PYG{l+s+sd}{        model}
+\PYG{l+s+sd}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{k}{if} \PYG{n}{args}\PYG{o}{.}\PYG{n}{model} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}resnet18k\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{assert} \PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}width} \PYG{o+ow}{is} \PYG{o+ow}{not} \PYG{k+kc}{None}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}please check k value\PYGZdq{}}
+        \PYG{n}{model} \PYG{o}{=} \PYG{n}{resnet18k}\PYG{o}{.}\PYG{n}{make\PYGZus{}resnet18k}\PYG{p}{(}\PYG{n}{k}\PYG{o}{=}\PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}width}\PYG{p}{,} \PYG{n}{num\PYGZus{}classes}\PYG{o}{=}\PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes}\PYG{p}{)}
+        \PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}SR\PYGZus{}resnet18k\PYGZhy{}}\PYG{l+s+si}{\PYGZob{}\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}width}\PYG{p}{)}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{model} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}resnet18\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{if} \PYG{n}{args}\PYG{o}{.}\PYG{n}{pretrained} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}SR\PYGZdq{}}\PYG{p}{:}
+            \PYG{c+c1}{\PYGZsh{} model}
+            \PYG{n}{model} \PYG{o}{=} \PYG{n}{models}\PYG{o}{.}\PYG{n}{resnet18}\PYG{p}{(}\PYG{n}{pretrained}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,} \PYG{n}{num\PYGZus{}classes}\PYG{o}{=}\PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes}\PYG{p}{)}
+            \PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}SR\PYGZus{}resnet18\PYGZdq{}} \PYG{c+c1}{\PYGZsh{} SR means scratch}
+        \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{pretrained} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}IN\PYGZdq{}}\PYG{p}{:} \PYG{c+c1}{\PYGZsh{}\PYGZsh{} 事前学習モデルを利用する場合，一度重みを読み込んで，全結合層だけ初期化する}
+            \PYG{n}{model} \PYG{o}{=} \PYG{n}{models}\PYG{o}{.}\PYG{n}{resnet18}\PYG{p}{(}\PYG{n}{pretrained}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+            \PYG{n}{in\PYGZus{}features} \PYG{o}{=} \PYG{n}{model}\PYG{o}{.}\PYG{n}{fc}\PYG{o}{.}\PYG{n}{in\PYGZus{}features}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{fc} \PYG{o}{=} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Linear}\PYG{p}{(}\PYG{n}{in\PYGZus{}features}\PYG{o}{=}\PYG{n}{in\PYGZus{}features}\PYG{p}{,} \PYG{n}{out\PYGZus{}features}\PYG{o}{=}\PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes}\PYG{p}{,} \PYG{n}{bias}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+            \PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}IN\PYGZus{}resnet18\PYGZdq{}}
+        \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{pretrained} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}INv1\PYGZdq{}}\PYG{p}{:} \PYG{c+c1}{\PYGZsh{}\PYGZsh{} 独自に学習したバージョン、バッチサイズ256}
+            \PYG{n}{model} \PYG{o}{=} \PYG{n}{models}\PYG{o}{.}\PYG{n}{resnet18}\PYG{p}{()}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{load\PYGZus{}state\PYGZus{}dict}\PYG{p}{(}
+            \PYG{n}{torch}\PYG{o}{.}\PYG{n}{load}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}/workspace/Epoch\PYGZus{}dd/checkpoint/SR\PYGZus{}resnet18\PYGZus{}90epochs\PYGZus{}bs256\PYGZus{}ImageNet\PYGZus{}ln0pc.tar\PYGZsq{}}\PYG{p}{)[}\PYG{l+s+s2}{\PYGZdq{}model\PYGZus{}state\PYGZus{}dict\PYGZdq{}}\PYG{p}{]}
+            \PYG{p}{)}
+            \PYG{n}{in\PYGZus{}features} \PYG{o}{=} \PYG{n}{model}\PYG{o}{.}\PYG{n}{fc}\PYG{o}{.}\PYG{n}{in\PYGZus{}features}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{fc} \PYG{o}{=} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Linear}\PYG{p}{(}\PYG{n}{in\PYGZus{}features}\PYG{o}{=}\PYG{n}{in\PYGZus{}features}\PYG{p}{,} \PYG{n}{out\PYGZus{}features}\PYG{o}{=}\PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes}\PYG{p}{,} \PYG{n}{bias}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+            \PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}INv1\PYGZus{}resnet18\PYGZdq{}}
+        \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{pretrained} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}INv2\PYGZdq{}}\PYG{p}{:} \PYG{c+c1}{\PYGZsh{}\PYGZsh{} 独自に学習したバージョン、バッチサイズ256}
+            \PYG{n}{model} \PYG{o}{=} \PYG{n}{models}\PYG{o}{.}\PYG{n}{resnet18}\PYG{p}{()}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{load\PYGZus{}state\PYGZus{}dict}\PYG{p}{(}
+            \PYG{n}{torch}\PYG{o}{.}\PYG{n}{load}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}/workspace/Epoch\PYGZus{}dd/checkpoint/SR\PYGZus{}resnet18\PYGZus{}90epochs\PYGZus{}bs32\PYGZus{}ImageNet\PYGZus{}ln0pc.tar\PYGZsq{}}\PYG{p}{)[}\PYG{l+s+s2}{\PYGZdq{}model\PYGZus{}state\PYGZus{}dict\PYGZdq{}}\PYG{p}{]}
+            \PYG{p}{)}
+            \PYG{n}{in\PYGZus{}features} \PYG{o}{=} \PYG{n}{model}\PYG{o}{.}\PYG{n}{fc}\PYG{o}{.}\PYG{n}{in\PYGZus{}features}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{fc} \PYG{o}{=} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Linear}\PYG{p}{(}\PYG{n}{in\PYGZus{}features}\PYG{o}{=}\PYG{n}{in\PYGZus{}features}\PYG{p}{,} \PYG{n}{out\PYGZus{}features}\PYG{o}{=}\PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes}\PYG{p}{,} \PYG{n}{bias}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+            \PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}INv2\PYGZus{}resnet18\PYGZdq{}}
+        \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{pretrained} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}INv3\PYGZdq{}}\PYG{p}{:} \PYG{c+c1}{\PYGZsh{}\PYGZsh{} pytorchのプログラムで事前学習}
+            \PYG{n}{model} \PYG{o}{=} \PYG{n}{models}\PYG{o}{.}\PYG{n}{resnet18}\PYG{p}{()}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{load\PYGZus{}state\PYGZus{}dict}\PYG{p}{(}
+            \PYG{n}{torch}\PYG{o}{.}\PYG{n}{load}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}/workspace/Epoch\PYGZus{}dd/checkpoint/INv3\PYGZus{}made\PYGZus{}by\PYGZus{}pytorch\PYGZus{}code.pth\PYGZsq{}}\PYG{p}{)[}\PYG{l+s+s2}{\PYGZdq{}model\PYGZdq{}}\PYG{p}{]}
+            \PYG{p}{)}
+            \PYG{n}{in\PYGZus{}features} \PYG{o}{=} \PYG{n}{model}\PYG{o}{.}\PYG{n}{fc}\PYG{o}{.}\PYG{n}{in\PYGZus{}features}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{fc} \PYG{o}{=} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Linear}\PYG{p}{(}\PYG{n}{in\PYGZus{}features}\PYG{o}{=}\PYG{n}{in\PYGZus{}features}\PYG{p}{,} \PYG{n}{out\PYGZus{}features}\PYG{o}{=}\PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes}\PYG{p}{,} \PYG{n}{bias}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+            \PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}INv3\PYGZus{}resnet18\PYGZdq{}}
+        \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{pretrained} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}INv4\PYGZdq{}}\PYG{p}{:} \PYG{c+c1}{\PYGZsh{}\PYGZsh{} pytorchのプログラムで事前学習}
+            \PYG{n}{model} \PYG{o}{=} \PYG{n}{models}\PYG{o}{.}\PYG{n}{resnet18}\PYG{p}{()}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{load\PYGZus{}state\PYGZus{}dict}\PYG{p}{(}
+            \PYG{n}{torch}\PYG{o}{.}\PYG{n}{load}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}/workspace/Epoch\PYGZus{}dd/checkpoint/SR\PYGZus{}resnet18\PYGZus{}90epochs\PYGZus{}bs32\PYGZus{}ImageNet\PYGZus{}ln0pc\PYGZus{}v2.tar\PYGZsq{}}\PYG{p}{)[}\PYG{l+s+s2}{\PYGZdq{}model\PYGZus{}state\PYGZus{}dict\PYGZdq{}}\PYG{p}{]}
+            \PYG{p}{)}
+            \PYG{n}{in\PYGZus{}features} \PYG{o}{=} \PYG{n}{model}\PYG{o}{.}\PYG{n}{fc}\PYG{o}{.}\PYG{n}{in\PYGZus{}features}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{fc} \PYG{o}{=} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Linear}\PYG{p}{(}\PYG{n}{in\PYGZus{}features}\PYG{o}{=}\PYG{n}{in\PYGZus{}features}\PYG{p}{,} \PYG{n}{out\PYGZus{}features}\PYG{o}{=}\PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes}\PYG{p}{,} \PYG{n}{bias}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+            \PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}INv4\PYGZus{}resnet18\PYGZdq{}}
+        \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{pretrained} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}FDB1kv1\PYGZdq{}}\PYG{p}{:} \PYG{c+c1}{\PYGZsh{}\PYGZsh{} 独自に学習したバージョン、バッチサイズ256}
+            \PYG{n}{model} \PYG{o}{=} \PYG{n}{models}\PYG{o}{.}\PYG{n}{resnet18}\PYG{p}{()}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{load\PYGZus{}state\PYGZus{}dict}\PYG{p}{(}
+            \PYG{n}{torch}\PYG{o}{.}\PYG{n}{load}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}/workspace/Epoch\PYGZus{}dd/checkpoint/SR\PYGZus{}resnet18\PYGZus{}90epochs\PYGZus{}bs32\PYGZus{}FDB\PYGZus{}1k\PYGZus{}ln0pc.tar\PYGZsq{}}\PYG{p}{)[}\PYG{l+s+s2}{\PYGZdq{}model\PYGZus{}state\PYGZus{}dict\PYGZdq{}}\PYG{p}{]}
+            \PYG{p}{)}
+            \PYG{n}{in\PYGZus{}features} \PYG{o}{=} \PYG{n}{model}\PYG{o}{.}\PYG{n}{fc}\PYG{o}{.}\PYG{n}{in\PYGZus{}features}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{fc} \PYG{o}{=} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Linear}\PYG{p}{(}\PYG{n}{in\PYGZus{}features}\PYG{o}{=}\PYG{n}{in\PYGZus{}features}\PYG{p}{,} \PYG{n}{out\PYGZus{}features}\PYG{o}{=}\PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes}\PYG{p}{,} \PYG{n}{bias}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+            \PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}FDB1kv1\PYGZus{}resnet18\PYGZdq{}}
+        \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{pretrained} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}RCDB1kv1\PYGZdq{}}\PYG{p}{:} \PYG{c+c1}{\PYGZsh{}\PYGZsh{} 独自に学習したバージョン、バッチサイズ256}
+            \PYG{n}{model} \PYG{o}{=} \PYG{n}{models}\PYG{o}{.}\PYG{n}{resnet18}\PYG{p}{()}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{load\PYGZus{}state\PYGZus{}dict}\PYG{p}{(}
+            \PYG{n}{torch}\PYG{o}{.}\PYG{n}{load}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}/workspace/Epoch\PYGZus{}dd/checkpoint/SR\PYGZus{}resnet18\PYGZus{}90epochs\PYGZus{}bs32\PYGZus{}RCDB1k\PYGZus{}ln0pc.tar\PYGZsq{}}\PYG{p}{)[}\PYG{l+s+s2}{\PYGZdq{}model\PYGZus{}state\PYGZus{}dict\PYGZdq{}}\PYG{p}{]}
+            \PYG{p}{)}
+            \PYG{n}{in\PYGZus{}features} \PYG{o}{=} \PYG{n}{model}\PYG{o}{.}\PYG{n}{fc}\PYG{o}{.}\PYG{n}{in\PYGZus{}features}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{fc} \PYG{o}{=} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Linear}\PYG{p}{(}\PYG{n}{in\PYGZus{}features}\PYG{o}{=}\PYG{n}{in\PYGZus{}features}\PYG{p}{,} \PYG{n}{out\PYGZus{}features}\PYG{o}{=}\PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes}\PYG{p}{,} \PYG{n}{bias}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+            \PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}RCDB1kv1\PYGZus{}resnet18\PYGZdq{}}
+        \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{pretrained} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}FR\PYGZdq{}}\PYG{p}{:}
+            \PYG{n}{model} \PYG{o}{=} \PYG{n}{models}\PYG{o}{.}\PYG{n}{resnet18}\PYG{p}{()}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{load\PYGZus{}state\PYGZus{}dict}\PYG{p}{(}\PYG{n}{torch}\PYG{o}{.}\PYG{n}{load}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}/workspace/Epoch\PYGZus{}dd/model\PYGZus{}weight/Fractal\PYGZhy{}1k/FractalDB\PYGZhy{}1000\PYGZus{}res18.pth\PYGZsq{}}\PYG{p}{))}
+            \PYG{n}{in\PYGZus{}features} \PYG{o}{=} \PYG{n}{model}\PYG{o}{.}\PYG{n}{fc}\PYG{o}{.}\PYG{n}{in\PYGZus{}features}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{fc} \PYG{o}{=} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Linear}\PYG{p}{(}\PYG{n}{in\PYGZus{}features}\PYG{o}{=}\PYG{n}{in\PYGZus{}features}\PYG{p}{,} \PYG{n}{out\PYGZus{}features}\PYG{o}{=}\PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes}\PYG{p}{,} \PYG{n}{bias}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+            \PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}FR\PYGZus{}resnet18\PYGZdq{}}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{model} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}resnet34\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{if} \PYG{n}{args}\PYG{o}{.}\PYG{n}{pretrained} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}SR\PYGZdq{}}\PYG{p}{:}
+            \PYG{c+c1}{\PYGZsh{} model}
+            \PYG{n}{model} \PYG{o}{=} \PYG{n}{models}\PYG{o}{.}\PYG{n}{resnet34}\PYG{p}{(}\PYG{n}{pretrained}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,} \PYG{n}{num\PYGZus{}classes}\PYG{o}{=}\PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes}\PYG{p}{)}
+            \PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}SR\PYGZus{}resnet34\PYGZdq{}} \PYG{c+c1}{\PYGZsh{} SR means scratch}
+        \PYG{k}{else}\PYG{p}{:} \PYG{c+c1}{\PYGZsh{}\PYGZsh{} 事前学習モデルを利用する場合，一度重みを読み込んで，全結合層だけ初期化する}
+            \PYG{n}{model} \PYG{o}{=} \PYG{n}{models}\PYG{o}{.}\PYG{n}{resnet34}\PYG{p}{(}\PYG{n}{pretrained}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+            \PYG{n}{in\PYGZus{}features} \PYG{o}{=} \PYG{n}{model}\PYG{o}{.}\PYG{n}{fc}\PYG{o}{.}\PYG{n}{in\PYGZus{}features}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{fc} \PYG{o}{=} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Linear}\PYG{p}{(}\PYG{n}{in\PYGZus{}features}\PYG{o}{=}\PYG{n}{in\PYGZus{}features}\PYG{p}{,} \PYG{n}{out\PYGZus{}features}\PYG{o}{=}\PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes}\PYG{p}{,} \PYG{n}{bias}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+            \PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}IN\PYGZus{}resnet34\PYGZdq{}}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{model} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}resnet50\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{if} \PYG{n}{args}\PYG{o}{.}\PYG{n}{pretrained} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}SR\PYGZdq{}}\PYG{p}{:}
+            \PYG{c+c1}{\PYGZsh{} model}
+            \PYG{n}{model} \PYG{o}{=} \PYG{n}{models}\PYG{o}{.}\PYG{n}{resnet50}\PYG{p}{(}\PYG{n}{pretrained}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,} \PYG{n}{num\PYGZus{}classes}\PYG{o}{=}\PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes}\PYG{p}{)}
+            \PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}SR\PYGZus{}resnet50\PYGZdq{}} \PYG{c+c1}{\PYGZsh{} SR means scratch}
+        \PYG{k}{else}\PYG{p}{:} \PYG{c+c1}{\PYGZsh{}\PYGZsh{} 事前学習モデルを利用する場合，一度重みを読み込んで，全結合層だけ初期化する}
+            \PYG{n}{model} \PYG{o}{=} \PYG{n}{models}\PYG{o}{.}\PYG{n}{resnet50}\PYG{p}{(}\PYG{n}{pretrained}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+            \PYG{n}{in\PYGZus{}features} \PYG{o}{=} \PYG{n}{model}\PYG{o}{.}\PYG{n}{fc}\PYG{o}{.}\PYG{n}{in\PYGZus{}features}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{fc} \PYG{o}{=} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Linear}\PYG{p}{(}\PYG{n}{in\PYGZus{}features}\PYG{o}{=}\PYG{n}{in\PYGZus{}features}\PYG{p}{,} \PYG{n}{out\PYGZus{}features}\PYG{o}{=}\PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes}\PYG{p}{,} \PYG{n}{bias}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+            \PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}IN\PYGZus{}resnet50\PYGZdq{}}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{model} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}densenet121\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{if} \PYG{n}{args}\PYG{o}{.}\PYG{n}{pretrained} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}SR\PYGZdq{}}\PYG{p}{:}
+            \PYG{c+c1}{\PYGZsh{} model}
+            \PYG{n}{model} \PYG{o}{=} \PYG{n}{models}\PYG{o}{.}\PYG{n}{densenet121}\PYG{p}{(}\PYG{n}{pretrained}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,} \PYG{n}{num\PYGZus{}classes}\PYG{o}{=}\PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes}\PYG{p}{)}
+            \PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}SR\PYGZus{}densenet121\PYGZdq{}} \PYG{c+c1}{\PYGZsh{} SR means scratch}
+        \PYG{k}{else}\PYG{p}{:} \PYG{c+c1}{\PYGZsh{}\PYGZsh{} 事前学習モデルを利用する場合，一度重みを読み込んで，全結合層だけ初期化する}
+            \PYG{n}{model} \PYG{o}{=} \PYG{n}{models}\PYG{o}{.}\PYG{n}{densenet121}\PYG{p}{(}\PYG{n}{pretrained}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+            \PYG{n}{in\PYGZus{}features} \PYG{o}{=} \PYG{n}{model}\PYG{o}{.}\PYG{n}{classifier}\PYG{o}{.}\PYG{n}{in\PYGZus{}features}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{classifier} \PYG{o}{=} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Linear}\PYG{p}{(}\PYG{n}{in\PYGZus{}features}\PYG{o}{=}\PYG{n}{in\PYGZus{}features}\PYG{p}{,} \PYG{n}{out\PYGZus{}features}\PYG{o}{=}\PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes}\PYG{p}{,} \PYG{n}{bias}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+            \PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}IN\PYGZus{}densenet121\PYGZdq{}}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{model} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}mobilenetV2\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{if} \PYG{n}{args}\PYG{o}{.}\PYG{n}{pretrained} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}SR\PYGZdq{}}\PYG{p}{:}
+            \PYG{c+c1}{\PYGZsh{} model}
+            \PYG{n}{model} \PYG{o}{=} \PYG{n}{models}\PYG{o}{.}\PYG{n}{mobilenet\PYGZus{}v2}\PYG{p}{(}\PYG{n}{pretrained}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,} \PYG{n}{num\PYGZus{}classes}\PYG{o}{=}\PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes}\PYG{p}{)}
+            \PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}SR\PYGZus{}mobilenetV2\PYGZdq{}} \PYG{c+c1}{\PYGZsh{} SR means scratch}
+        \PYG{k}{else}\PYG{p}{:} \PYG{c+c1}{\PYGZsh{}\PYGZsh{} 事前学習モデルを利用する場合，一度重みを読み込んで，全結合層だけ初期化する}
+            \PYG{n}{model} \PYG{o}{=} \PYG{n}{models}\PYG{o}{.}\PYG{n}{mobilenet\PYGZus{}v2}\PYG{p}{(}\PYG{n}{pretrained}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+            \PYG{n}{in\PYGZus{}features} \PYG{o}{=} \PYG{n}{model}\PYG{o}{.}\PYG{n}{classifier}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{in\PYGZus{}features}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{classifier}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{=} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Linear}\PYG{p}{(}\PYG{n}{in\PYGZus{}features}\PYG{o}{=}\PYG{n}{in\PYGZus{}features}\PYG{p}{,} \PYG{n}{out\PYGZus{}features}\PYG{o}{=}\PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes}\PYG{p}{,} \PYG{n}{bias}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+            \PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}IN\PYGZus{}mobilenetV2\PYGZdq{}}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{model} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}vitB16\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{if} \PYG{n}{args}\PYG{o}{.}\PYG{n}{pretrained} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}SR\PYGZdq{}}\PYG{p}{:}
+            \PYG{c+c1}{\PYGZsh{} model}
+            \PYG{n}{model} \PYG{o}{=} \PYG{n}{models}\PYG{o}{.}\PYG{n}{vit\PYGZus{}b\PYGZus{}16}\PYG{p}{(}\PYG{n}{pretrained}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,} \PYG{n}{num\PYGZus{}classes}\PYG{o}{=}\PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes}\PYG{p}{)}
+            \PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}SR\PYGZus{}vitB16\PYGZdq{}} \PYG{c+c1}{\PYGZsh{} SR means scratch}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{n}{model} \PYG{o}{=} \PYG{n}{models}\PYG{o}{.}\PYG{n}{vit\PYGZus{}b\PYGZus{}16}\PYG{p}{(}\PYG{n}{pretrained}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+            \PYG{n}{in\PYGZus{}features} \PYG{o}{=} \PYG{n}{model}\PYG{o}{.}\PYG{n}{heads}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{in\PYGZus{}features}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{heads}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]} \PYG{o}{=} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Linear}\PYG{p}{(}\PYG{n}{in\PYGZus{}features}\PYG{o}{=}\PYG{n}{in\PYGZus{}features}\PYG{p}{,} \PYG{n}{out\PYGZus{}features}\PYG{o}{=}\PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes}\PYG{p}{)}
+            \PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}IN\PYGZus{}vitB16\PYGZdq{}}
+    \PYG{k}{return} \PYG{n}{model}
+
+\PYG{k}{def} \PYG{n+nf}{get\PYGZus{}dataset\PYGZus{}train}\PYG{p}{(}\PYG{n}{args}\PYG{p}{,} \PYG{n}{transform}\PYG{p}{):}
+    \PYG{k}{if} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}cifar10\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{n}{torchvision}\PYG{o}{.}\PYG{n}{datasets}\PYG{o}{.}\PYG{n}{CIFAR10}\PYG{p}{(}\PYG{n}{root}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}./data\PYGZsq{}}\PYG{p}{,} \PYG{n}{train}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{download}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{transform}\PYG{o}{=}\PYG{n}{transform}\PYG{p}{)}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}cannyShapeCifar10ColorV1\PYGZdq{}}\PYG{p}{:}
+        \PYG{n}{train\PYGZus{}set} \PYG{o}{=} \PYG{n}{torchvision}\PYG{o}{.}\PYG{n}{datasets}\PYG{o}{.}\PYG{n}{CIFAR10}\PYG{p}{(}\PYG{n}{root}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}./data\PYGZsq{}}\PYG{p}{,} \PYG{n}{train}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{download}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{transform}\PYG{o}{=}\PYG{n}{transform}\PYG{p}{)}
+        \PYG{c+c1}{\PYGZsh{} RGBで形状を取り出して代入}
+        \PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{train\PYGZus{}set}\PYG{p}{)):}
+            \PYG{n}{new\PYGZus{}image} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{array}\PYG{p}{(}\PYG{n}{train\PYGZus{}set}\PYG{o}{.}\PYG{n}{data}\PYG{p}{[}\PYG{n}{i}\PYG{p}{],} \PYG{n}{dtype}\PYG{o}{=}\PYG{n}{np}\PYG{o}{.}\PYG{n}{uint8}\PYG{p}{)}
+            \PYG{n}{new\PYGZus{}image} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{cvtColor}\PYG{p}{(}\PYG{n}{new\PYGZus{}image}\PYG{p}{,} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{COLOR\PYGZus{}RGB2BGR}\PYG{p}{)}
+            \PYG{n}{edges} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{Canny}\PYG{p}{(}\PYG{n}{image}\PYG{o}{=}\PYG{n}{new\PYGZus{}image}\PYG{p}{,}\PYG{n}{threshold1}\PYG{o}{=}\PYG{l+m+mi}{255} \PYG{o}{/} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{n}{threshold2}\PYG{o}{=}\PYG{l+m+mi}{255}\PYG{p}{)}
+            \PYG{n}{edges} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{bitwise\PYGZus{}and}\PYG{p}{(}\PYG{n}{new\PYGZus{}image}\PYG{p}{,} \PYG{n}{new\PYGZus{}image}\PYG{p}{,} \PYG{n}{mask}\PYG{o}{=}\PYG{n}{edges}\PYG{p}{)}
+            \PYG{n}{train\PYGZus{}set}\PYG{o}{.}\PYG{n}{data}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{=} \PYG{n}{Image}\PYG{o}{.}\PYG{n}{fromarray}\PYG{p}{(}\PYG{n}{edges}\PYG{p}{)}
+        \PYG{k}{return} \PYG{n}{train\PYGZus{}set}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}cifar100\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{n}{torchvision}\PYG{o}{.}\PYG{n}{datasets}\PYG{o}{.}\PYG{n}{CIFAR100}\PYG{p}{(}\PYG{n}{root}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}./data\PYGZsq{}}\PYG{p}{,} \PYG{n}{train}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{download}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{transform}\PYG{o}{=}\PYG{n}{transform}\PYG{p}{)}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}tinyImageNet\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{n}{torchvision}\PYG{o}{.}\PYG{n}{datasets}\PYG{o}{.}\PYG{n}{ImageFolder}\PYG{p}{(}\PYG{n}{root}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}./data/tiny\PYGZhy{}imagenet\PYGZhy{}200/train\PYGZsq{}}\PYG{p}{,} \PYG{n}{transform}\PYG{o}{=}\PYG{n}{transform}\PYG{p}{)}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}DTD\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{n}{torchvision}\PYG{o}{.}\PYG{n}{datasets}\PYG{o}{.}\PYG{n}{DTD}\PYG{p}{(}\PYG{n}{root}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}./data\PYGZsq{}}\PYG{p}{,} \PYG{n}{split}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}train\PYGZdq{}}\PYG{p}{,} \PYG{n}{download}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{transform}\PYG{o}{=}\PYG{n}{transform}\PYG{p}{)}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}STL10\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{n}{torchvision}\PYG{o}{.}\PYG{n}{datasets}\PYG{o}{.}\PYG{n}{STL10}\PYG{p}{(}\PYG{n}{root}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}./data\PYGZsq{}}\PYG{p}{,} \PYG{n}{split}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}train\PYGZdq{}}\PYG{p}{,} \PYG{n}{download}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{transform}\PYG{o}{=}\PYG{n}{transform}\PYG{p}{)}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}flower102\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{n}{torchvision}\PYG{o}{.}\PYG{n}{datasets}\PYG{o}{.}\PYG{n}{Flowers102}\PYG{p}{(}\PYG{n}{root}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}./data\PYGZsq{}}\PYG{p}{,} \PYG{n}{split}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}train\PYGZdq{}}\PYG{p}{,} \PYG{n}{download}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{transform}\PYG{o}{=}\PYG{n}{transform}\PYG{p}{)}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}cifar100\PYGZus{}to\PYGZus{}10class\PYGZdq{}}\PYG{p}{:}
+        \PYG{n}{selected\PYGZus{}classes} \PYG{o}{=} \PYG{n+nb}{list}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{10}\PYG{p}{))}
+        \PYG{n}{train\PYGZus{}set} \PYG{o}{=} \PYG{n}{torchvision}\PYG{o}{.}\PYG{n}{datasets}\PYG{o}{.}\PYG{n}{CIFAR100}\PYG{p}{(}\PYG{n}{root}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}./data\PYGZsq{}}\PYG{p}{,} \PYG{n}{train}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{download}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{transform}\PYG{o}{=}\PYG{n}{transform}\PYG{p}{)}
+        \PYG{n}{targets} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{tensor}\PYG{p}{(}\PYG{n}{train\PYGZus{}set}\PYG{o}{.}\PYG{n}{targets}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} 選択したクラスに対応するブーリアンマスクを作成}
+        \PYG{n}{mask} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{zeros\PYGZus{}like}\PYG{p}{(}\PYG{n}{targets}\PYG{p}{,} \PYG{n}{dtype}\PYG{o}{=}\PYG{n}{torch}\PYG{o}{.}\PYG{n}{bool}\PYG{p}{)}
+        \PYG{k}{for} \PYG{n}{c} \PYG{o+ow}{in} \PYG{n}{selected\PYGZus{}classes}\PYG{p}{:}
+            \PYG{n}{mask} \PYG{o}{|=} \PYG{p}{(}\PYG{n}{targets} \PYG{o}{==} \PYG{n}{c}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} 選択したクラスに対応するデータとターゲットを抽出}
+        \PYG{n}{train\PYGZus{}set}\PYG{o}{.}\PYG{n}{data} \PYG{o}{=} \PYG{n}{train\PYGZus{}set}\PYG{o}{.}\PYG{n}{data}\PYG{p}{[}\PYG{n}{mask}\PYG{p}{]}
+        \PYG{n}{train\PYGZus{}set}\PYG{o}{.}\PYG{n}{targets} \PYG{o}{=} \PYG{n}{targets}\PYG{p}{[}\PYG{n}{mask}\PYG{p}{]}\PYG{o}{.}\PYG{n}{tolist}\PYG{p}{()}
+        \PYG{k}{return} \PYG{n}{train\PYGZus{}set}
+
+\PYG{k}{def} \PYG{n+nf}{get\PYGZus{}dataset\PYGZus{}test}\PYG{p}{(}\PYG{n}{args}\PYG{p}{,} \PYG{n}{transform}\PYG{p}{):}
+    \PYG{k}{if} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}cifar10\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{n}{torchvision}\PYG{o}{.}\PYG{n}{datasets}\PYG{o}{.}\PYG{n}{CIFAR10}\PYG{p}{(}\PYG{n}{root}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}./data\PYGZsq{}}\PYG{p}{,} \PYG{n}{train}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,} \PYG{n}{download}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{transform}\PYG{o}{=}\PYG{n}{transform}\PYG{p}{)}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}cannyShapeCifar10ColorV1\PYGZdq{}}\PYG{p}{:}
+        \PYG{n}{test\PYGZus{}set} \PYG{o}{=} \PYG{n}{torchvision}\PYG{o}{.}\PYG{n}{datasets}\PYG{o}{.}\PYG{n}{CIFAR10}\PYG{p}{(}\PYG{n}{root}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}./data\PYGZsq{}}\PYG{p}{,} \PYG{n}{train}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,} \PYG{n}{download}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{transform}\PYG{o}{=}\PYG{n}{transform}\PYG{p}{)}
+        \PYG{c+c1}{\PYGZsh{} \PYGZsh{} RGBで形状を取り出して代入}
+        \PYG{c+c1}{\PYGZsh{} for i in range(len(test\PYGZus{}set)):}
+        \PYG{c+c1}{\PYGZsh{}     new\PYGZus{}image = np.array(test\PYGZus{}set.data[i], dtype=np.uint8)}
+        \PYG{c+c1}{\PYGZsh{}     new\PYGZus{}image = cv2.cvtColor(new\PYGZus{}image, cv2.COLOR\PYGZus{}RGB2BGR)}
+        \PYG{c+c1}{\PYGZsh{}     edges = cv2.Canny(image=new\PYGZus{}image,threshold1=255 / 2, threshold2=255)}
+        \PYG{c+c1}{\PYGZsh{}     edges = cv2.bitwise\PYGZus{}and(new\PYGZus{}image, new\PYGZus{}image, mask=edges)}
+        \PYG{c+c1}{\PYGZsh{}     test\PYGZus{}set.data[i] = Image.fromarray(edges)}
+        \PYG{k}{return} \PYG{n}{test\PYGZus{}set}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}cifar100\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{n}{torchvision}\PYG{o}{.}\PYG{n}{datasets}\PYG{o}{.}\PYG{n}{CIFAR100}\PYG{p}{(}\PYG{n}{root}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}./data\PYGZsq{}}\PYG{p}{,} \PYG{n}{train}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,} \PYG{n}{download}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{transform}\PYG{o}{=}\PYG{n}{transform}\PYG{p}{)}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}tinyImageNet\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{n}{torchvision}\PYG{o}{.}\PYG{n}{datasets}\PYG{o}{.}\PYG{n}{ImageFolder}\PYG{p}{(}\PYG{n}{root}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}./data/tiny\PYGZhy{}imagenet\PYGZhy{}200/val\PYGZsq{}}\PYG{p}{,} \PYG{n}{transform}\PYG{o}{=}\PYG{n}{transform}\PYG{p}{)}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}DTD\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{n}{torchvision}\PYG{o}{.}\PYG{n}{datasets}\PYG{o}{.}\PYG{n}{DTD}\PYG{p}{(}\PYG{n}{root}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}./data\PYGZsq{}}\PYG{p}{,} \PYG{n}{split}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}test\PYGZdq{}}\PYG{p}{,} \PYG{n}{download}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{transform}\PYG{o}{=}\PYG{n}{transform}\PYG{p}{)}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}STL10\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{n}{torchvision}\PYG{o}{.}\PYG{n}{datasets}\PYG{o}{.}\PYG{n}{STL10}\PYG{p}{(}\PYG{n}{root}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}./data\PYGZsq{}}\PYG{p}{,} \PYG{n}{split}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}test\PYGZdq{}}\PYG{p}{,} \PYG{n}{download}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{transform}\PYG{o}{=}\PYG{n}{transform}\PYG{p}{)}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}flower102\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{n}{torchvision}\PYG{o}{.}\PYG{n}{datasets}\PYG{o}{.}\PYG{n}{Flowers102}\PYG{p}{(}\PYG{n}{root}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}./data\PYGZsq{}}\PYG{p}{,} \PYG{n}{split}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}test\PYGZdq{}}\PYG{p}{,} \PYG{n}{download}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{transform}\PYG{o}{=}\PYG{n}{transform}\PYG{p}{)}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}cifar100\PYGZus{}to\PYGZus{}10class\PYGZdq{}}\PYG{p}{:}
+        \PYG{n}{selected\PYGZus{}classes} \PYG{o}{=} \PYG{n+nb}{list}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{10}\PYG{p}{))}
+        \PYG{n}{test\PYGZus{}set} \PYG{o}{=} \PYG{n}{torchvision}\PYG{o}{.}\PYG{n}{datasets}\PYG{o}{.}\PYG{n}{CIFAR100}\PYG{p}{(}\PYG{n}{root}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}./data\PYGZsq{}}\PYG{p}{,} \PYG{n}{train}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,} \PYG{n}{download}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{transform}\PYG{o}{=}\PYG{n}{transform}\PYG{p}{)}
+        \PYG{n}{targets} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{tensor}\PYG{p}{(}\PYG{n}{test\PYGZus{}set}\PYG{o}{.}\PYG{n}{targets}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} 選択したクラスに対応するブーリアンマスクを作成}
+        \PYG{n}{mask} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{zeros\PYGZus{}like}\PYG{p}{(}\PYG{n}{targets}\PYG{p}{,} \PYG{n}{dtype}\PYG{o}{=}\PYG{n}{torch}\PYG{o}{.}\PYG{n}{bool}\PYG{p}{)}
+        \PYG{k}{for} \PYG{n}{c} \PYG{o+ow}{in} \PYG{n}{selected\PYGZus{}classes}\PYG{p}{:}
+            \PYG{n}{mask} \PYG{o}{|=} \PYG{p}{(}\PYG{n}{targets} \PYG{o}{==} \PYG{n}{c}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} 選択したクラスに対応するデータとターゲットを抽出}
+        \PYG{n}{test\PYGZus{}set}\PYG{o}{.}\PYG{n}{data} \PYG{o}{=} \PYG{n}{test\PYGZus{}set}\PYG{o}{.}\PYG{n}{data}\PYG{p}{[}\PYG{n}{mask}\PYG{p}{]}
+        \PYG{n}{test\PYGZus{}set}\PYG{o}{.}\PYG{n}{targets} \PYG{o}{=} \PYG{n}{targets}\PYG{p}{[}\PYG{n}{mask}\PYG{p}{]}\PYG{o}{.}\PYG{n}{tolist}\PYG{p}{()}
+        \PYG{k}{return} \PYG{n}{test\PYGZus{}set}
+
+\PYG{k}{def} \PYG{n+nf}{get\PYGZus{}imagesize}\PYG{p}{(}\PYG{n}{args}\PYG{p}{):}
+    \PYG{k}{if} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}cifar10\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{l+m+mi}{32}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}cannyShapeCifar10ColorV1\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{l+m+mi}{32}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}cifar100\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{l+m+mi}{32}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}tinyImageNet\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{l+m+mi}{64}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}DTD\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{l+m+mi}{224}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}STL10\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{l+m+mi}{96}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}flower102\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{l+m+mi}{224}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}cifar100\PYGZus{}to\PYGZus{}10class\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{l+m+mi}{32}
+
+\PYG{k}{def} \PYG{n+nf}{get\PYGZus{}num\PYGZus{}classes}\PYG{p}{(}\PYG{n}{args}\PYG{p}{):}
+    \PYG{k}{if} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}cifar10\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{l+m+mi}{10}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}cannyShapeCifar10ColorV1\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{l+m+mi}{10}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}cifar100\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{l+m+mi}{100}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}tinyImageNet\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{l+m+mi}{200}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}DTD\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{l+m+mi}{47}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}STL10\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{l+m+mi}{10}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}flower102\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{l+m+mi}{102}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}cifar100\PYGZus{}to\PYGZus{}10class\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return} \PYG{l+m+mi}{10}
+
+
+\PYG{k}{def} \PYG{n+nf}{fix\PYGZus{}seed}\PYG{p}{(}\PYG{n}{seed}\PYG{o}{=}\PYG{l+m+mi}{42}\PYG{p}{):}
+    \PYG{c+c1}{\PYGZsh{} random}
+    \PYG{n}{random}\PYG{o}{.}\PYG{n}{seed}\PYG{p}{(}\PYG{n}{seed}\PYG{p}{)}
+    \PYG{c+c1}{\PYGZsh{} Numpy}
+    \PYG{c+c1}{\PYGZsh{} np.random.seed(seed)}
+    \PYG{c+c1}{\PYGZsh{} Pytorch}
+    \PYG{n}{torch}\PYG{o}{.}\PYG{n}{manual\PYGZus{}seed}\PYG{p}{(}\PYG{n}{seed}\PYG{p}{)}
+    \PYG{n}{torch}\PYG{o}{.}\PYG{n}{cuda}\PYG{o}{.}\PYG{n}{manual\PYGZus{}seed\PYGZus{}all}\PYG{p}{(}\PYG{n}{seed}\PYG{p}{)}
+    \PYG{n}{torch}\PYG{o}{.}\PYG{n}{backends}\PYG{o}{.}\PYG{n}{cudnn}\PYG{o}{.}\PYG{n}{benchmark} \PYG{o}{=} \PYG{k+kc}{False}
+    \PYG{n}{torch}\PYG{o}{.}\PYG{n}{backends}\PYG{o}{.}\PYG{n}{cudnn}\PYG{o}{.}\PYG{n}{deterministic} \PYG{o}{=} \PYG{k+kc}{True}
+    \PYG{c+c1}{\PYGZsh{} Tensorflow}
+    \PYG{c+c1}{\PYGZsh{} tf.random.set\PYGZus{}seed(seed)}
+
+\PYG{k}{def} \PYG{n+nf}{main}\PYG{p}{():}
+    \PYG{n}{args} \PYG{o}{=} \PYG{n}{parse\PYGZus{}args}\PYG{p}{()}
+    \PYG{n}{fix\PYGZus{}seed}\PYG{p}{(}\PYG{n}{args}\PYG{o}{.}\PYG{n}{fix\PYGZus{}seed}\PYG{p}{)}
+    \PYG{c+c1}{\PYGZsh{}epoch数指定}
+    \PYG{n}{epoch} \PYG{o}{=} \PYG{n}{args}\PYG{o}{.}\PYG{n}{epoch}
+    \PYG{n}{label\PYGZus{}noise\PYGZus{}rate} \PYG{o}{=} \PYG{n}{args}\PYG{o}{.}\PYG{n}{label\PYGZus{}noise\PYGZus{}rate}
+    \PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes} \PYG{o}{=} \PYG{n}{get\PYGZus{}num\PYGZus{}classes}\PYG{p}{(}\PYG{n}{args}\PYG{p}{)}
+    \PYG{n}{device} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}cuda\PYGZsq{}} \PYG{k}{if} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{cuda}\PYG{o}{.}\PYG{n}{is\PYGZus{}available}\PYG{p}{()} \PYG{k}{else} \PYG{l+s+s1}{\PYGZsq{}cpu\PYGZsq{}}
+    \PYG{n}{imageSize} \PYG{o}{=} \PYG{n}{get\PYGZus{}imagesize}\PYG{p}{(}\PYG{n}{args}\PYG{p}{)}
+
+    \PYG{k}{if} \PYG{n}{args}\PYG{o}{.}\PYG{n}{model} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}vitB16\PYGZdq{}} \PYG{o+ow}{or} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}DTD\PYGZdq{}}\PYG{p}{:}
+        \PYG{n}{args}\PYG{o}{.}\PYG{n}{resize} \PYG{o}{=} \PYG{k+kc}{True}
+
+    \PYG{k}{if} \PYG{n}{args}\PYG{o}{.}\PYG{n}{resize}\PYG{p}{:}
+        \PYG{n}{transform\PYGZus{}train} \PYG{o}{=} \PYG{n}{transforms}\PYG{o}{.}\PYG{n}{Compose}\PYG{p}{([}
+            \PYG{n}{transforms}\PYG{o}{.}\PYG{n}{RandomCrop}\PYG{p}{(}\PYG{n}{imageSize}\PYG{p}{,} \PYG{n}{padding}\PYG{o}{=}\PYG{n}{imageSize} \PYG{o}{//} \PYG{l+m+mi}{8}\PYG{p}{),}
+            \PYG{n}{transforms}\PYG{o}{.}\PYG{n}{RandomHorizontalFlip}\PYG{p}{(),}
+            \PYG{n}{transforms}\PYG{o}{.}\PYG{n}{ToTensor}\PYG{p}{(),}
+            \PYG{n}{transforms}\PYG{o}{.}\PYG{n}{Normalize}\PYG{p}{((}\PYG{l+m+mf}{0.4914}\PYG{p}{,} \PYG{l+m+mf}{0.4822}\PYG{p}{,} \PYG{l+m+mf}{0.4465}\PYG{p}{),} \PYG{p}{(}\PYG{l+m+mf}{0.2023}\PYG{p}{,} \PYG{l+m+mf}{0.1994}\PYG{p}{,} \PYG{l+m+mf}{0.2010}\PYG{p}{)),}
+            \PYG{n}{transforms}\PYG{o}{.}\PYG{n}{Resize}\PYG{p}{(}\PYG{n}{size}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{224}\PYG{p}{,} \PYG{l+m+mi}{224}\PYG{p}{)),}
+        \PYG{p}{])}
+        \PYG{n}{transform\PYGZus{}test} \PYG{o}{=} \PYG{n}{transforms}\PYG{o}{.}\PYG{n}{Compose}\PYG{p}{([}
+            \PYG{n}{transforms}\PYG{o}{.}\PYG{n}{ToTensor}\PYG{p}{(),}
+            \PYG{n}{transforms}\PYG{o}{.}\PYG{n}{Normalize}\PYG{p}{((}\PYG{l+m+mf}{0.4914}\PYG{p}{,} \PYG{l+m+mf}{0.4822}\PYG{p}{,} \PYG{l+m+mf}{0.4465}\PYG{p}{),} \PYG{p}{(}\PYG{l+m+mf}{0.2023}\PYG{p}{,} \PYG{l+m+mf}{0.1994}\PYG{p}{,} \PYG{l+m+mf}{0.2010}\PYG{p}{)),}
+            \PYG{n}{transforms}\PYG{o}{.}\PYG{n}{Resize}\PYG{p}{(}\PYG{n}{size}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{224}\PYG{p}{,} \PYG{l+m+mi}{224}\PYG{p}{)),}
+        \PYG{p}{])}
+    \PYG{k}{else}\PYG{p}{:}
+        \PYG{n}{transform\PYGZus{}train} \PYG{o}{=} \PYG{n}{transforms}\PYG{o}{.}\PYG{n}{Compose}\PYG{p}{([}
+            \PYG{n}{transforms}\PYG{o}{.}\PYG{n}{RandomCrop}\PYG{p}{(}\PYG{n}{imageSize}\PYG{p}{,} \PYG{n}{padding}\PYG{o}{=}\PYG{n}{imageSize} \PYG{o}{//} \PYG{l+m+mi}{8}\PYG{p}{),}
+            \PYG{n}{transforms}\PYG{o}{.}\PYG{n}{RandomHorizontalFlip}\PYG{p}{(),}
+            \PYG{n}{transforms}\PYG{o}{.}\PYG{n}{ToTensor}\PYG{p}{(),}
+            \PYG{n}{transforms}\PYG{o}{.}\PYG{n}{Normalize}\PYG{p}{((}\PYG{l+m+mf}{0.4914}\PYG{p}{,} \PYG{l+m+mf}{0.4822}\PYG{p}{,} \PYG{l+m+mf}{0.4465}\PYG{p}{),} \PYG{p}{(}\PYG{l+m+mf}{0.2023}\PYG{p}{,} \PYG{l+m+mf}{0.1994}\PYG{p}{,} \PYG{l+m+mf}{0.2010}\PYG{p}{)),}
+        \PYG{p}{])}
+        \PYG{n}{transform\PYGZus{}test} \PYG{o}{=} \PYG{n}{transforms}\PYG{o}{.}\PYG{n}{Compose}\PYG{p}{([}
+            \PYG{n}{transforms}\PYG{o}{.}\PYG{n}{ToTensor}\PYG{p}{(),}
+            \PYG{n}{transforms}\PYG{o}{.}\PYG{n}{Normalize}\PYG{p}{((}\PYG{l+m+mf}{0.4914}\PYG{p}{,} \PYG{l+m+mf}{0.4822}\PYG{p}{,} \PYG{l+m+mf}{0.4465}\PYG{p}{),} \PYG{p}{(}\PYG{l+m+mf}{0.2023}\PYG{p}{,} \PYG{l+m+mf}{0.1994}\PYG{p}{,} \PYG{l+m+mf}{0.2010}\PYG{p}{)),}
+        \PYG{p}{])}
+    \PYG{c+c1}{\PYGZsh{}resize分岐}
+    \PYG{n}{train\PYGZus{}set} \PYG{o}{=} \PYG{n}{get\PYGZus{}dataset\PYGZus{}train}\PYG{p}{(}\PYG{n}{args}\PYG{p}{,} \PYG{n}{transform\PYGZus{}train}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{}インスタンス変数にアクセスしてラベルの張替え}
+    \PYG{k}{if} \PYG{n+nb}{hasattr}\PYG{p}{(}\PYG{n}{train\PYGZus{}set}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}targets\PYGZdq{}}\PYG{p}{):}
+        \PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{train\PYGZus{}set}\PYG{o}{.}\PYG{n}{targets}\PYG{p}{)):}
+            \PYG{k}{if}\PYG{p}{(}\PYG{n}{random}\PYG{o}{.}\PYG{n}{randint}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{9999}\PYG{p}{)} \PYG{o}{\PYGZlt{}} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{label\PYGZus{}noise\PYGZus{}rate} \PYG{o}{*} \PYG{l+m+mi}{10000}\PYG{p}{)):}
+                \PYG{n}{train\PYGZus{}set}\PYG{o}{.}\PYG{n}{targets}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{+=} \PYG{n}{random}\PYG{o}{.}\PYG{n}{randint}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{)}
+                \PYG{n}{train\PYGZus{}set}\PYG{o}{.}\PYG{n}{targets}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{\PYGZpc{}=} \PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes}
+    \PYG{k}{elif} \PYG{n+nb}{hasattr}\PYG{p}{(}\PYG{n}{train\PYGZus{}set}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}\PYGZus{}labels\PYGZdq{}}\PYG{p}{):}
+        \PYG{c+c1}{\PYGZsh{}\PYGZus{}labelsでラベル情報を持っている場合}
+        \PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{train\PYGZus{}set}\PYG{o}{.}\PYG{n}{\PYGZus{}labels}\PYG{p}{)):}
+            \PYG{k}{if}\PYG{p}{(}\PYG{n}{random}\PYG{o}{.}\PYG{n}{randint}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{9999}\PYG{p}{)} \PYG{o}{\PYGZlt{}} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{label\PYGZus{}noise\PYGZus{}rate} \PYG{o}{*} \PYG{l+m+mi}{10000}\PYG{p}{)):}
+                \PYG{n}{train\PYGZus{}set}\PYG{o}{.}\PYG{n}{\PYGZus{}labels}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{+=} \PYG{n}{random}\PYG{o}{.}\PYG{n}{randint}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{)}
+                \PYG{n}{train\PYGZus{}set}\PYG{o}{.}\PYG{n}{\PYGZus{}labels}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{\PYGZpc{}=} \PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes}
+    \PYG{k}{else}\PYG{p}{:}
+        \PYG{c+c1}{\PYGZsh{}labelsでラベル情報を持っている場合}
+        \PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{train\PYGZus{}set}\PYG{o}{.}\PYG{n}{labels}\PYG{p}{)):}
+            \PYG{k}{if}\PYG{p}{(}\PYG{n}{random}\PYG{o}{.}\PYG{n}{randint}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{9999}\PYG{p}{)} \PYG{o}{\PYGZlt{}} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{label\PYGZus{}noise\PYGZus{}rate} \PYG{o}{*} \PYG{l+m+mi}{10000}\PYG{p}{)):}
+                \PYG{n}{train\PYGZus{}set}\PYG{o}{.}\PYG{n}{labels}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{+=} \PYG{n}{random}\PYG{o}{.}\PYG{n}{randint}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{)}
+                \PYG{n}{train\PYGZus{}set}\PYG{o}{.}\PYG{n}{labels}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{\PYGZpc{}=} \PYG{n}{args}\PYG{o}{.}\PYG{n}{num\PYGZus{}classes}
+
+    \PYG{n}{train\PYGZus{}loader} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{utils}\PYG{o}{.}\PYG{n}{data}\PYG{o}{.}\PYG{n}{DataLoader}\PYG{p}{(}\PYG{n}{train\PYGZus{}set}\PYG{p}{,} \PYG{n}{batch\PYGZus{}size}\PYG{o}{=}\PYG{l+m+mi}{128}\PYG{p}{,} \PYG{n}{shuffle}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{num\PYGZus{}workers}\PYG{o}{=}\PYG{l+m+mi}{2}\PYG{p}{)}
+    \PYG{n}{test\PYGZus{}set} \PYG{o}{=} \PYG{n}{get\PYGZus{}dataset\PYGZus{}test}\PYG{p}{(}\PYG{n}{args}\PYG{p}{,} \PYG{n}{transform\PYGZus{}test}\PYG{p}{)}
+    \PYG{n}{test\PYGZus{}loader} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{utils}\PYG{o}{.}\PYG{n}{data}\PYG{o}{.}\PYG{n}{DataLoader}\PYG{p}{(}\PYG{n}{test\PYGZus{}set}\PYG{p}{,} \PYG{n}{batch\PYGZus{}size}\PYG{o}{=}\PYG{l+m+mi}{128}\PYG{p}{,} \PYG{n}{shuffle}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{num\PYGZus{}workers}\PYG{o}{=}\PYG{l+m+mi}{2}\PYG{p}{)}
+    \PYG{c+c1}{\PYGZsh{} CIFAR10のクラス}
+    \PYG{n}{class\PYGZus{}names} \PYG{o}{=} \PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}plane\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}car\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}bird\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}cat\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}deer\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}dog\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}frog\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}horse\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}ship\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}truck\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{n}{model} \PYG{o}{=} \PYG{n}{get\PYGZus{}model}\PYG{p}{(}\PYG{n}{args}\PYG{p}{)}
+    \PYG{n}{model} \PYG{o}{=} \PYG{n}{model}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{device}\PYG{p}{)}
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname}\PYG{p}{)}
+
+    \PYG{k}{if} \PYG{n}{args}\PYG{o}{.}\PYG{n}{resize}\PYG{p}{:}
+        \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}resize\PYGZus{}\PYGZdq{}} \PYG{o}{+} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset}
+        \PYG{c+c1}{\PYGZsh{}resizeの有無をpath名で明示}
+
+    \PYG{c+c1}{\PYGZsh{} if device == \PYGZsq{}cuda\PYGZsq{}:}
+    \PYG{c+c1}{\PYGZsh{}     model = torch.nn.DataParallel(model)}
+
+    \PYG{n}{criterion} \PYG{o}{=} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{CrossEntropyLoss}\PYG{p}{()}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{device}\PYG{p}{)}
+    \PYG{n}{optimizer} \PYG{o}{=} \PYG{n}{optim}\PYG{o}{.}\PYG{n}{Adam}\PYG{p}{(}\PYG{n}{model}\PYG{o}{.}\PYG{n}{parameters}\PYG{p}{(),} \PYG{n}{lr}\PYG{o}{=}\PYG{l+m+mf}{0.0001}\PYG{p}{)}
+    \PYG{n}{x1} \PYG{o}{=} \PYG{p}{[]}
+    \PYG{n}{x2} \PYG{o}{=} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{epoch} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{)}
+    \PYG{n}{x1}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{}wandb}
+
+    \PYG{n}{wandb}\PYG{o}{.}\PYG{n}{init}\PYG{p}{(}
+    \PYG{c+c1}{\PYGZsh{} set the wandb project where this run will be logged}
+        \PYG{n}{project}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}DDvsShapeTexture\PYGZdq{}}\PYG{p}{,}
+
+        \PYG{c+c1}{\PYGZsh{} track hyperparameters and run metadata}
+        \PYG{n}{config}\PYG{o}{=}\PYG{p}{\PYGZob{}}
+            \PYG{l+s+s2}{\PYGZdq{}architecture\PYGZdq{}}\PYG{p}{:} \PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname}\PYG{p}{,}
+            \PYG{l+s+s2}{\PYGZdq{}epochs\PYGZdq{}}\PYG{p}{:} \PYG{n}{args}\PYG{o}{.}\PYG{n}{epoch}\PYG{p}{,}
+            \PYG{l+s+s2}{\PYGZdq{}dataset\PYGZdq{}}\PYG{p}{:} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset}\PYG{p}{,}
+            \PYG{l+s+s2}{\PYGZdq{}label\PYGZus{}noise\PYGZus{}rate\PYGZdq{}}\PYG{p}{:} \PYG{n}{args}\PYG{o}{.}\PYG{n}{label\PYGZus{}noise\PYGZus{}rate}\PYG{p}{,}
+            \PYG{l+s+s2}{\PYGZdq{}batch\PYGZus{}size\PYGZdq{}}\PYG{p}{:} \PYG{n}{args}\PYG{o}{.}\PYG{n}{batch\PYGZus{}size}\PYG{p}{,}
+            \PYG{l+s+s2}{\PYGZdq{}learning\PYGZus{}rate\PYGZdq{}}\PYG{p}{:} \PYG{n}{args}\PYG{o}{.}\PYG{n}{learning\PYGZus{}rate}\PYG{p}{,}
+            \PYG{l+s+s2}{\PYGZdq{}seed\PYGZdq{}}\PYG{p}{:} \PYG{n}{args}\PYG{o}{.}\PYG{n}{fix\PYGZus{}seed}\PYG{p}{,}
+        \PYG{p}{\PYGZcb{}}
+    \PYG{p}{)}
+
+
+    \PYG{c+c1}{\PYGZsh{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZsh{}}
+    \PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{} csv 作成}
+    \PYG{c+c1}{\PYGZsh{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZsh{}}
+    \PYG{c+c1}{\PYGZsh{} 初期値取得}
+
+    \PYG{n}{train\PYGZus{}acc}\PYG{p}{,} \PYG{n}{train\PYGZus{}loss} \PYG{o}{=} \PYG{n}{test}\PYG{p}{(}\PYG{n}{model}\PYG{p}{,} \PYG{n}{device}\PYG{p}{,} \PYG{n}{test\PYGZus{}loader}\PYG{p}{,} \PYG{n}{criterion}\PYG{p}{)} \PYG{c+c1}{\PYGZsh{} 初期値取得}
+    \PYG{n}{test\PYGZus{}acc}\PYG{p}{,} \PYG{n}{test\PYGZus{}loss} \PYG{o}{=} \PYG{n}{test}\PYG{p}{(}\PYG{n}{model}\PYG{p}{,} \PYG{n}{device}\PYG{p}{,} \PYG{n}{test\PYGZus{}loader}\PYG{p}{,} \PYG{n}{criterion}\PYG{p}{)}
+    \PYG{n}{wandb}\PYG{o}{.}\PYG{n}{log}\PYG{p}{(\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}Epoch\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{0}\PYG{p}{,}\PYG{l+s+s2}{\PYGZdq{}train acc\PYGZdq{}}\PYG{p}{:} \PYG{n}{train\PYGZus{}acc}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}train loss\PYGZdq{}}\PYG{p}{:} \PYG{n}{train\PYGZus{}loss}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}test acc\PYGZdq{}}\PYG{p}{:} \PYG{n}{test\PYGZus{}acc}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}test loss\PYGZdq{}}\PYG{p}{:} \PYG{n}{test\PYGZus{}loss}\PYG{p}{\PYGZcb{})}
+
+    \PYG{c+c1}{\PYGZsh{} train}
+    \PYG{k}{with} \PYG{n+nb}{open}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}./csv/}\PYG{l+s+si}{\PYGZob{}\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}}\PYG{l+s+si}{\PYGZob{}\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}}\PYG{l+s+si}{\PYGZob{}\PYGZcb{}}\PYG{l+s+s1}{epochs\PYGZus{}ln}\PYG{l+s+si}{\PYGZob{}\PYGZcb{}}\PYG{l+s+s1}{pc\PYGZus{}seed}\PYG{l+s+si}{\PYGZob{}\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}train.csv\PYGZsq{}}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname}\PYG{p}{,} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset}\PYG{p}{,} \PYG{n}{args}\PYG{o}{.}\PYG{n}{epoch}\PYG{p}{,} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{label\PYGZus{}noise\PYGZus{}rate} \PYG{o}{*} \PYG{l+m+mi}{100}\PYG{p}{),} \PYG{n}{args}\PYG{o}{.}\PYG{n}{fix\PYGZus{}seed}\PYG{p}{),}\PYG{l+s+s1}{\PYGZsq{}w\PYGZsq{}}\PYG{p}{)} \PYG{k}{as} \PYG{n}{file}\PYG{p}{:}
+        \PYG{n}{file}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}epoch,error,loss}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+        \PYG{n}{file}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}0,}\PYG{l+s+si}{\PYGZob{}}\PYG{l+m+mf}{1.0}\PYG{+w}{ }\PYG{o}{\PYGZhy{}}\PYG{+w}{ }\PYG{n}{train\PYGZus{}acc}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{,}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{train\PYGZus{}loss}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+    \PYG{c+c1}{\PYGZsh{} test}
+    \PYG{k}{with} \PYG{n+nb}{open}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}./csv/}\PYG{l+s+si}{\PYGZob{}\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}}\PYG{l+s+si}{\PYGZob{}\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}}\PYG{l+s+si}{\PYGZob{}\PYGZcb{}}\PYG{l+s+s1}{epochs\PYGZus{}ln}\PYG{l+s+si}{\PYGZob{}\PYGZcb{}}\PYG{l+s+s1}{pc\PYGZus{}seed}\PYG{l+s+si}{\PYGZob{}\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}test.csv\PYGZsq{}}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname}\PYG{p}{,} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset}\PYG{p}{,} \PYG{n}{args}\PYG{o}{.}\PYG{n}{epoch}\PYG{p}{,} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{label\PYGZus{}noise\PYGZus{}rate} \PYG{o}{*} \PYG{l+m+mi}{100}\PYG{p}{),} \PYG{n}{args}\PYG{o}{.}\PYG{n}{fix\PYGZus{}seed}\PYG{p}{),}\PYG{l+s+s1}{\PYGZsq{}w\PYGZsq{}}\PYG{p}{)} \PYG{k}{as} \PYG{n}{file}\PYG{p}{:}
+        \PYG{n}{file}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}epoch,error,loss}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+        \PYG{n}{file}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}0,}\PYG{l+s+si}{\PYGZob{}}\PYG{l+m+mf}{1.0}\PYG{+w}{ }\PYG{o}{\PYGZhy{}}\PYG{+w}{ }\PYG{n}{test\PYGZus{}acc}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{,}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{test\PYGZus{}loss}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+
+    \PYG{k}{if} \PYG{o+ow}{not} \PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{isdir}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}./model\PYGZus{}weight1/}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}ln}\PYG{l+s+si}{\PYGZob{}}\PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{label\PYGZus{}noise\PYGZus{}rate}\PYG{+w}{ }\PYG{o}{*}\PYG{+w}{ }\PYG{l+m+mi}{100}\PYG{p}{)}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{pc\PYGZus{}seed}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{args}\PYG{o}{.}\PYG{n}{fix\PYGZus{}seed}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{):}
+        \PYG{n}{os}\PYG{o}{.}\PYG{n}{makedirs}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}./model\PYGZus{}weight1/}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}ln}\PYG{l+s+si}{\PYGZob{}}\PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{label\PYGZus{}noise\PYGZus{}rate}\PYG{+w}{ }\PYG{o}{*}\PYG{+w}{ }\PYG{l+m+mi}{100}\PYG{p}{)}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{pc\PYGZus{}seed}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{args}\PYG{o}{.}\PYG{n}{fix\PYGZus{}seed}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+    \PYG{c+c1}{\PYGZsh{}\PYGZsh{} \PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZsh{}}
+    \PYG{c+c1}{\PYGZsh{}\PYGZsh{} training \PYGZsh{}}
+    \PYG{c+c1}{\PYGZsh{} \PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZsh{}}
+    \PYG{k}{for} \PYG{n}{epoch} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{epoch}\PYG{p}{):}
+        \PYG{c+c1}{\PYGZsh{} Train and test a model.}
+        \PYG{n}{model}\PYG{o}{.}\PYG{n}{train}\PYG{p}{()}
+        \PYG{c+c1}{\PYGZsh{}trainの各数値はbatchごとに出す}
+        \PYG{c+c1}{\PYGZsh{}calc\PYGZus{}scoreの返却値のlossはbatch数で割っているので無視,loss.item()を用いる}
+        \PYG{k}{for} \PYG{n}{batich\PYGZus{}idx}\PYG{p}{,} \PYG{p}{(}\PYG{n}{inputs}\PYG{p}{,} \PYG{n}{targets}\PYG{p}{)} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n}{train\PYGZus{}loader}\PYG{p}{):}
+            \PYG{n}{output\PYGZus{}list} \PYG{o}{=} \PYG{p}{[]}
+            \PYG{n}{target\PYGZus{}list} \PYG{o}{=} \PYG{p}{[]}
+            \PYG{n}{running\PYGZus{}loss} \PYG{o}{=} \PYG{l+m+mf}{0.0}
+            \PYG{n}{xpoint} \PYG{o}{=} \PYG{l+m+mf}{0.0} \PYG{o}{+} \PYG{n}{epoch} \PYG{o}{+} \PYG{p}{(}\PYG{n+nb}{float}\PYG{p}{(}\PYG{n}{batich\PYGZus{}idx} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{)} \PYG{o}{/} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{train\PYGZus{}loader}\PYG{p}{))}
+            \PYG{n}{inputs}\PYG{p}{,} \PYG{n}{targets} \PYG{o}{=} \PYG{n}{inputs}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{device}\PYG{p}{),} \PYG{n}{targets}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{device}\PYG{p}{)}
+            \PYG{n}{outputs} \PYG{o}{=} \PYG{n}{model}\PYG{p}{(}\PYG{n}{inputs}\PYG{p}{)}
+            \PYG{n}{loss} \PYG{o}{=} \PYG{n}{criterion}\PYG{p}{(}\PYG{n}{outputs}\PYG{p}{,} \PYG{n}{targets}\PYG{p}{)}
+
+            \PYG{n}{optimizer}\PYG{o}{.}\PYG{n}{zero\PYGZus{}grad}\PYG{p}{()}
+            \PYG{n}{loss}\PYG{o}{.}\PYG{n}{backward}\PYG{p}{()}
+            \PYG{n}{optimizer}\PYG{o}{.}\PYG{n}{step}\PYG{p}{()}
+
+            \PYG{n}{output\PYGZus{}list} \PYG{o}{+=} \PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{o}\PYG{o}{.}\PYG{n}{argmax}\PYG{p}{())} \PYG{k}{for} \PYG{n}{o} \PYG{o+ow}{in} \PYG{n}{outputs}\PYG{p}{]}
+            \PYG{n}{target\PYGZus{}list} \PYG{o}{+=} \PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{t}\PYG{p}{)} \PYG{k}{for} \PYG{n}{t} \PYG{o+ow}{in} \PYG{n}{targets}\PYG{p}{]}
+            \PYG{n}{running\PYGZus{}loss} \PYG{o}{+=} \PYG{n}{loss}\PYG{o}{.}\PYG{n}{item}\PYG{p}{()}
+
+            \PYG{n}{train\PYGZus{}acc}\PYG{p}{,} \PYG{n}{train\PYGZus{}loss} \PYG{o}{=} \PYG{n}{calc\PYGZus{}score}\PYG{p}{(}\PYG{n}{target\PYGZus{}list}\PYG{p}{,} \PYG{n}{output\PYGZus{}list}\PYG{p}{,} \PYG{n}{running\PYGZus{}loss}\PYG{p}{,} \PYG{n}{train\PYGZus{}loader}\PYG{p}{)}
+            \PYG{n}{x1}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{xpoint}\PYG{p}{)}
+            \PYG{c+c1}{\PYGZsh{}\PYGZsh{} csv writer}
+            \PYG{k}{with} \PYG{n+nb}{open}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}./csv/}\PYG{l+s+si}{\PYGZob{}\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}}\PYG{l+s+si}{\PYGZob{}\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}}\PYG{l+s+si}{\PYGZob{}\PYGZcb{}}\PYG{l+s+s1}{epochs\PYGZus{}ln}\PYG{l+s+si}{\PYGZob{}\PYGZcb{}}\PYG{l+s+s1}{pc\PYGZus{}seed}\PYG{l+s+si}{\PYGZob{}\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}train.csv\PYGZsq{}}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname}\PYG{p}{,} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset}\PYG{p}{,} \PYG{n}{args}\PYG{o}{.}\PYG{n}{epoch}\PYG{p}{,} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{label\PYGZus{}noise\PYGZus{}rate} \PYG{o}{*} \PYG{l+m+mi}{100}\PYG{p}{),} \PYG{n}{args}\PYG{o}{.}\PYG{n}{fix\PYGZus{}seed}\PYG{p}{),}\PYG{l+s+s1}{\PYGZsq{}a\PYGZsq{}}\PYG{p}{)} \PYG{k}{as} \PYG{n}{file}\PYG{p}{:}
+                \PYG{n}{file}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{xpoint}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{,}\PYG{l+s+si}{\PYGZob{}}\PYG{l+m+mf}{1.0}\PYG{+w}{ }\PYG{o}{\PYGZhy{}}\PYG{+w}{ }\PYG{n}{train\PYGZus{}acc}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{,}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{loss}\PYG{o}{.}\PYG{n}{item}\PYG{p}{()}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+
+            \PYG{c+c1}{\PYGZsh{} if batich\PYGZus{}idx \PYGZpc{} 100 == 0 and batich\PYGZus{}idx != 0:}
+            \PYG{c+c1}{\PYGZsh{}     stdout\PYGZus{}temp = \PYGZsq{}batch: \PYGZob{}:\PYGZgt{}3\PYGZcb{}/\PYGZob{}:\PYGZlt{}3\PYGZcb{}, train acc:\PYGZob{}:\PYGZlt{}8\PYGZcb{}, train loss: \PYGZob{}:\PYGZlt{}8\PYGZcb{}\PYGZsq{}}
+            \PYG{c+c1}{\PYGZsh{}     print(stdout\PYGZus{}temp.format(batich\PYGZus{}idx, len(train\PYGZus{}loader), train\PYGZus{}acc, loss.item()))}
+
+        \PYG{c+c1}{\PYGZsh{}\PYGZsh{} これないとダメmodel.eval}
+        \PYG{n}{model}\PYG{o}{.}\PYG{n}{eval}\PYG{p}{()}
+        \PYG{n}{test\PYGZus{}acc}\PYG{p}{,} \PYG{n}{test\PYGZus{}loss} \PYG{o}{=} \PYG{n}{test}\PYG{p}{(}\PYG{n}{model}\PYG{p}{,} \PYG{n}{device}\PYG{p}{,} \PYG{n}{test\PYGZus{}loader}\PYG{p}{,} \PYG{n}{criterion}\PYG{p}{)}
+        \PYG{c+c1}{\PYGZsh{} csv writer}
+        \PYG{k}{with} \PYG{n+nb}{open}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}./csv/}\PYG{l+s+si}{\PYGZob{}\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}}\PYG{l+s+si}{\PYGZob{}\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}}\PYG{l+s+si}{\PYGZob{}\PYGZcb{}}\PYG{l+s+s1}{epochs\PYGZus{}ln}\PYG{l+s+si}{\PYGZob{}\PYGZcb{}}\PYG{l+s+s1}{pc\PYGZus{}seed}\PYG{l+s+si}{\PYGZob{}\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}test.csv\PYGZsq{}}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname}\PYG{p}{,} \PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset}\PYG{p}{,} \PYG{n}{args}\PYG{o}{.}\PYG{n}{epoch}\PYG{p}{,} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{label\PYGZus{}noise\PYGZus{}rate} \PYG{o}{*} \PYG{l+m+mi}{100}\PYG{p}{),} \PYG{n}{args}\PYG{o}{.}\PYG{n}{fix\PYGZus{}seed}\PYG{p}{),}\PYG{l+s+s1}{\PYGZsq{}a\PYGZsq{}}\PYG{p}{)} \PYG{k}{as} \PYG{n}{file}\PYG{p}{:}
+                \PYG{n}{file}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{epoch}\PYG{+w}{ }\PYG{o}{+}\PYG{+w}{ }\PYG{l+m+mi}{1}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{,}\PYG{l+s+si}{\PYGZob{}}\PYG{l+m+mf}{1.0}\PYG{+w}{ }\PYG{o}{\PYGZhy{}}\PYG{+w}{ }\PYG{n}{test\PYGZus{}acc}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{,}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{test\PYGZus{}loss}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} Output score.}
+        \PYG{n}{stdout\PYGZus{}temp} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}epoch: }\PYG{l+s+si}{\PYGZob{}:\PYGZgt{}3\PYGZcb{}}\PYG{l+s+s1}{, train acc: }\PYG{l+s+si}{\PYGZob{}:\PYGZlt{}8\PYGZcb{}}\PYG{l+s+s1}{, train loss: }\PYG{l+s+si}{\PYGZob{}:\PYGZlt{}8\PYGZcb{}}\PYG{l+s+s1}{, test acc: }\PYG{l+s+si}{\PYGZob{}:\PYGZlt{}8\PYGZcb{}}\PYG{l+s+s1}{, test loss: }\PYG{l+s+si}{\PYGZob{}:\PYGZlt{}8\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{n}{stdout\PYGZus{}temp}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{epoch}\PYG{o}{+}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{train\PYGZus{}acc}\PYG{p}{,} \PYG{n}{loss}\PYG{o}{.}\PYG{n}{item}\PYG{p}{(),} \PYG{n}{test\PYGZus{}acc}\PYG{p}{,} \PYG{n}{test\PYGZus{}loss}\PYG{p}{))}
+        \PYG{n}{wandb}\PYG{o}{.}\PYG{n}{log}\PYG{p}{(\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}Epoch\PYGZdq{}}\PYG{p}{:} \PYG{n}{epoch} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{,}\PYG{l+s+s2}{\PYGZdq{}train acc\PYGZdq{}}\PYG{p}{:} \PYG{n}{train\PYGZus{}acc}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}train loss\PYGZdq{}}\PYG{p}{:} \PYG{n}{loss}\PYG{o}{.}\PYG{n}{item}\PYG{p}{(),} \PYG{l+s+s2}{\PYGZdq{}test acc\PYGZdq{}}\PYG{p}{:} \PYG{n}{test\PYGZus{}acc}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}test loss\PYGZdq{}}\PYG{p}{:} \PYG{n}{test\PYGZus{}loss}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}leraning rate\PYGZdq{}}\PYG{p}{:} \PYG{n}{optimizer}\PYG{o}{.}\PYG{n}{param\PYGZus{}groups}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{][}\PYG{l+s+s1}{\PYGZsq{}lr\PYGZsq{}}\PYG{p}{]\PYGZcb{})}
+
+        \PYG{c+c1}{\PYGZsh{}\PYGZsh{} model save\PYGZsh{}\PYGZsh{}\PYGZsh{}}
+        \PYG{c+c1}{\PYGZsh{} torch.save(model.state\PYGZus{}dict(), \PYGZsq{}./model\PYGZus{}weight/resnet18*\PYGZsq{} + str(args.model\PYGZus{}width) + \PYGZsq{}\PYGZhy{}cifar10\PYGZhy{}train.csv\PYGZsq{})}
+        \PYG{c+c1}{\PYGZsh{} pytorchの慣例でpthファイルで保存する}
+        \PYG{c+c1}{\PYGZsh{} 実験のためにepochごとに保存}
+        \PYG{n}{model\PYGZus{}path} \PYG{o}{=} \PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}./model\PYGZus{}weight1/}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}ln}\PYG{l+s+si}{\PYGZob{}}\PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{label\PYGZus{}noise\PYGZus{}rate}\PYG{+w}{ }\PYG{o}{*}\PYG{+w}{ }\PYG{l+m+mi}{100}\PYG{p}{)}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{pc\PYGZus{}seed}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{args}\PYG{o}{.}\PYG{n}{fix\PYGZus{}seed}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{/}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}epoch}\PYG{l+s+si}{\PYGZob{}}\PYG{p}{(}\PYG{n}{epoch}\PYG{+w}{ }\PYG{o}{+}\PYG{+w}{ }\PYG{l+m+mi}{1}\PYG{p}{)}\PYG{l+s+si}{:}\PYG{l+s+s1}{04}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}ln}\PYG{l+s+si}{\PYGZob{}}\PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{label\PYGZus{}noise\PYGZus{}rate}\PYG{+w}{ }\PYG{o}{*}\PYG{+w}{ }\PYG{l+m+mi}{100}\PYG{p}{)}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{pc\PYGZus{}seed}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{args}\PYG{o}{.}\PYG{n}{fix\PYGZus{}seed}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{.pth\PYGZsq{}}
+        \PYG{n}{torch}\PYG{o}{.}\PYG{n}{save}\PYG{p}{(}\PYG{n}{model}\PYG{o}{.}\PYG{n}{state\PYGZus{}dict}\PYG{p}{(),} \PYG{n}{model\PYGZus{}path}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} checkpoint}
+    \PYG{n}{torch}\PYG{o}{.}\PYG{n}{save}\PYG{p}{(\PYGZob{}}
+    \PYG{l+s+s2}{\PYGZdq{}epoch\PYGZdq{}}\PYG{p}{:} \PYG{n}{epoch}\PYG{p}{,}
+    \PYG{l+s+s2}{\PYGZdq{}model\PYGZus{}state\PYGZus{}dict\PYGZdq{}}\PYG{p}{:} \PYG{n}{model}\PYG{o}{.}\PYG{n}{state\PYGZus{}dict}\PYG{p}{(),}
+    \PYG{l+s+s2}{\PYGZdq{}optimizer\PYGZus{}state\PYGZus{}dict\PYGZdq{}}\PYG{p}{:} \PYG{n}{optimizer}\PYG{o}{.}\PYG{n}{state\PYGZus{}dict}\PYG{p}{()}
+    \PYG{p}{\PYGZcb{},}
+    \PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}./checkpoint/}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{args}\PYG{o}{.}\PYG{n}{model\PYGZus{}fullname}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}}\PYG{l+s+si}{\PYGZob{}}\PYG{p}{(}\PYG{n}{epoch}\PYG{+w}{ }\PYG{o}{+}\PYG{+w}{ }\PYG{l+m+mi}{1}\PYG{p}{)}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{epochs\PYGZus{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{args}\PYG{o}{.}\PYG{n}{dataset}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}ln}\PYG{l+s+si}{\PYGZob{}}\PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{label\PYGZus{}noise\PYGZus{}rate}\PYG{+w}{ }\PYG{o}{*}\PYG{+w}{ }\PYG{l+m+mi}{100}\PYG{p}{)}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{pc\PYGZus{}seed}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{args}\PYG{o}{.}\PYG{n}{fix\PYGZus{}seed}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{.tar\PYGZsq{}}\PYG{p}{)}
+
+
+
+\PYG{k}{def} \PYG{n+nf}{train} \PYG{p}{(}\PYG{n}{model}\PYG{p}{,} \PYG{n}{device}\PYG{p}{,} \PYG{n}{train\PYGZus{}loader}\PYG{p}{,} \PYG{n}{criterion}\PYG{p}{,} \PYG{n}{optimizer}\PYG{p}{):}
+    \PYG{n}{model}\PYG{o}{.}\PYG{n}{train}\PYG{p}{()}
+    \PYG{n}{output\PYGZus{}list} \PYG{o}{=} \PYG{p}{[]}
+    \PYG{n}{target\PYGZus{}list} \PYG{o}{=} \PYG{p}{[]}
+    \PYG{n}{running\PYGZus{}loss} \PYG{o}{=} \PYG{l+m+mf}{0.0}
+    \PYG{k}{for} \PYG{n}{batich\PYGZus{}idx}\PYG{p}{,} \PYG{p}{(}\PYG{n}{inputs}\PYG{p}{,} \PYG{n}{targets}\PYG{p}{)} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n}{train\PYGZus{}loader}\PYG{p}{):}
+        \PYG{n}{inputs}\PYG{p}{,} \PYG{n}{targets} \PYG{o}{=} \PYG{n}{inputs}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{device}\PYG{p}{),} \PYG{n}{targets}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{device}\PYG{p}{)}
+        \PYG{n}{outputs} \PYG{o}{=} \PYG{n}{model}\PYG{p}{(}\PYG{n}{inputs}\PYG{p}{)}
+        \PYG{n}{loss} \PYG{o}{=} \PYG{n}{criterion}\PYG{p}{(}\PYG{n}{outputs}\PYG{p}{,} \PYG{n}{targets}\PYG{p}{)}
+
+        \PYG{n}{optimizer}\PYG{o}{.}\PYG{n}{zero\PYGZus{}grad}\PYG{p}{()}
+        \PYG{n}{loss}\PYG{o}{.}\PYG{n}{backward}\PYG{p}{()}
+        \PYG{n}{optimizer}\PYG{o}{.}\PYG{n}{step}\PYG{p}{()}
+
+        \PYG{n}{output\PYGZus{}list} \PYG{o}{+=} \PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{o}\PYG{o}{.}\PYG{n}{argmax}\PYG{p}{())} \PYG{k}{for} \PYG{n}{o} \PYG{o+ow}{in} \PYG{n}{outputs}\PYG{p}{]}
+        \PYG{n}{target\PYGZus{}list} \PYG{o}{+=} \PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{t}\PYG{p}{)} \PYG{k}{for} \PYG{n}{t} \PYG{o+ow}{in} \PYG{n}{targets}\PYG{p}{]}
+        \PYG{n}{running\PYGZus{}loss} \PYG{o}{+=} \PYG{n}{loss}\PYG{o}{.}\PYG{n}{item}\PYG{p}{()}
+
+        \PYG{n}{train\PYGZus{}acc}\PYG{p}{,} \PYG{n}{train\PYGZus{}loss} \PYG{o}{=} \PYG{n}{calc\PYGZus{}score}\PYG{p}{(}\PYG{n}{target\PYGZus{}list}\PYG{p}{,} \PYG{n}{output\PYGZus{}list}\PYG{p}{,} \PYG{n}{running\PYGZus{}loss}\PYG{p}{,} \PYG{n}{train\PYGZus{}loader}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n}{batich\PYGZus{}idx} \PYG{o}{\PYGZpc{}} \PYG{l+m+mi}{100} \PYG{o}{==} \PYG{l+m+mi}{0} \PYG{o+ow}{and} \PYG{n}{batich\PYGZus{}idx} \PYG{o}{!=} \PYG{l+m+mi}{0}\PYG{p}{:}
+            \PYG{n}{stdout\PYGZus{}temp} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}batch: }\PYG{l+s+si}{\PYGZob{}:\PYGZgt{}3\PYGZcb{}}\PYG{l+s+s1}{/}\PYG{l+s+si}{\PYGZob{}:\PYGZlt{}3\PYGZcb{}}\PYG{l+s+s1}{, train acc:}\PYG{l+s+si}{\PYGZob{}:\PYGZlt{}8\PYGZcb{}}\PYG{l+s+s1}{, train loss: }\PYG{l+s+si}{\PYGZob{}:\PYGZlt{}8\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}}
+            \PYG{n+nb}{print}\PYG{p}{(}\PYG{n}{stdout\PYGZus{}temp}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{batich\PYGZus{}idx}\PYG{p}{,} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{train\PYGZus{}loader}\PYG{p}{),} \PYG{n}{train\PYGZus{}acc}\PYG{p}{,} \PYG{n}{train\PYGZus{}loss}\PYG{p}{))}
+    \PYG{n}{train\PYGZus{}acc}\PYG{p}{,} \PYG{n}{train\PYGZus{}loss} \PYG{o}{=} \PYG{n}{calc\PYGZus{}score}\PYG{p}{(}\PYG{n}{target\PYGZus{}list}\PYG{p}{,} \PYG{n}{output\PYGZus{}list}\PYG{p}{,} \PYG{n}{running\PYGZus{}loss}\PYG{p}{,} \PYG{n}{train\PYGZus{}loader}\PYG{p}{)}
+
+
+    \PYG{k}{return} \PYG{n}{train\PYGZus{}acc}\PYG{p}{,} \PYG{n}{train\PYGZus{}loss}
+
+\PYG{k}{def} \PYG{n+nf}{test}\PYG{p}{(}\PYG{n}{model}\PYG{p}{,} \PYG{n}{device}\PYG{p}{,} \PYG{n}{test\PYGZus{}loader}\PYG{p}{,} \PYG{n}{criterion}\PYG{p}{):}
+    \PYG{n}{model}\PYG{o}{.}\PYG{n}{eval}\PYG{p}{()}
+
+    \PYG{n}{output\PYGZus{}list} \PYG{o}{=} \PYG{p}{[]}
+    \PYG{n}{target\PYGZus{}list} \PYG{o}{=} \PYG{p}{[]}
+    \PYG{n}{running\PYGZus{}loss} \PYG{o}{=} \PYG{l+m+mf}{0.0}
+    \PYG{k}{with} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{no\PYGZus{}grad}\PYG{p}{():}
+        \PYG{k}{for} \PYG{n}{batch\PYGZus{}idx}\PYG{p}{,} \PYG{p}{(}\PYG{n}{inputs}\PYG{p}{,} \PYG{n}{targets}\PYG{p}{)} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n}{test\PYGZus{}loader}\PYG{p}{):}
+            \PYG{c+c1}{\PYGZsh{} Forward processing.}
+            \PYG{n}{inputs}\PYG{p}{,} \PYG{n}{targets} \PYG{o}{=} \PYG{n}{inputs}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{device}\PYG{p}{),} \PYG{n}{targets}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{device}\PYG{p}{)}
+            \PYG{n}{outputs} \PYG{o}{=} \PYG{n}{model}\PYG{p}{(}\PYG{n}{inputs}\PYG{p}{)}
+            \PYG{n}{loss} \PYG{o}{=} \PYG{n}{criterion}\PYG{p}{(}\PYG{n}{outputs}\PYG{p}{,} \PYG{n}{targets}\PYG{p}{)}
+
+            \PYG{c+c1}{\PYGZsh{} Set data to calculate score.}
+            \PYG{n}{output\PYGZus{}list} \PYG{o}{+=} \PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{o}\PYG{o}{.}\PYG{n}{argmax}\PYG{p}{())} \PYG{k}{for} \PYG{n}{o} \PYG{o+ow}{in} \PYG{n}{outputs}\PYG{p}{]}
+            \PYG{n}{target\PYGZus{}list} \PYG{o}{+=} \PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{t}\PYG{p}{)} \PYG{k}{for} \PYG{n}{t} \PYG{o+ow}{in} \PYG{n}{targets}\PYG{p}{]}
+            \PYG{n}{running\PYGZus{}loss} \PYG{o}{+=} \PYG{n}{loss}\PYG{o}{.}\PYG{n}{item}\PYG{p}{()}
+
+    \PYG{n}{test\PYGZus{}acc}\PYG{p}{,} \PYG{n}{test\PYGZus{}loss} \PYG{o}{=} \PYG{n}{calc\PYGZus{}score}\PYG{p}{(}\PYG{n}{target\PYGZus{}list}\PYG{p}{,} \PYG{n}{output\PYGZus{}list}\PYG{p}{,} \PYG{n}{running\PYGZus{}loss}\PYG{p}{,} \PYG{n}{test\PYGZus{}loader}\PYG{p}{)}
+
+    \PYG{k}{return} \PYG{n}{test\PYGZus{}acc}\PYG{p}{,} \PYG{n}{test\PYGZus{}loss}
+\PYG{k}{def} \PYG{n+nf}{calc\PYGZus{}score}\PYG{p}{(}\PYG{n}{true\PYGZus{}list}\PYG{p}{,} \PYG{n}{predict\PYGZus{}list}\PYG{p}{,} \PYG{n}{running\PYGZus{}loss}\PYG{p}{,} \PYG{n}{data\PYGZus{}loader}\PYG{p}{):}
+    \PYG{c+c1}{\PYGZsh{} import pdb;pdb.set\PYGZus{}trace()}
+    \PYG{c+c1}{\PYGZsh{} result = classification\PYGZus{}report(true\PYGZus{}list, predict\PYGZus{}list, output\PYGZus{}dict=True)}
+    \PYG{c+c1}{\PYGZsh{} acc = round(result[\PYGZsq{}accuracy\PYGZsq{}], 6)}
+    \PYG{n}{acc} \PYG{o}{=} \PYG{n}{accuracy\PYGZus{}score}\PYG{p}{(}\PYG{n}{true\PYGZus{}list}\PYG{p}{,} \PYG{n}{predict\PYGZus{}list}\PYG{p}{)}
+    \PYG{n}{loss} \PYG{o}{=} \PYG{n+nb}{round}\PYG{p}{(}\PYG{n}{running\PYGZus{}loss} \PYG{o}{/} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{data\PYGZus{}loader}\PYG{p}{),} \PYG{l+m+mi}{6}\PYG{p}{)}
+
+    \PYG{k}{return} \PYG{n}{acc}\PYG{p}{,} \PYG{n}{loss}
+
+\PYG{k}{def} \PYG{n+nf}{parse\PYGZus{}args}\PYG{p}{():}
+    \PYG{n}{arg\PYGZus{}parser} \PYG{o}{=} \PYG{n}{argparse}\PYG{o}{.}\PYG{n}{ArgumentParser}\PYG{p}{(}\PYG{n}{description}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}ResNet trained by CIFAR\PYGZhy{}10\PYGZdq{}}\PYG{p}{)}
+
+    \PYG{n}{arg\PYGZus{}parser}\PYG{o}{.}\PYG{n}{add\PYGZus{}argument}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}k\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZhy{}model\PYGZus{}width\PYGZdq{}}\PYG{p}{,} \PYG{n+nb}{type}\PYG{o}{=}\PYG{n+nb}{int}\PYG{p}{,} \PYG{n}{default}\PYG{o}{=}\PYG{l+m+mi}{64}\PYG{p}{)}
+    \PYG{n}{arg\PYGZus{}parser}\PYG{o}{.}\PYG{n}{add\PYGZus{}argument}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}e\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZhy{}epoch\PYGZdq{}}\PYG{p}{,} \PYG{n+nb}{type}\PYG{o}{=}\PYG{n+nb}{int}\PYG{p}{,} \PYG{n}{default}\PYG{o}{=}\PYG{l+m+mi}{4000}\PYG{p}{)}
+    \PYG{n}{arg\PYGZus{}parser}\PYG{o}{.}\PYG{n}{add\PYGZus{}argument}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}l\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZhy{}label\PYGZus{}noise\PYGZus{}rate\PYGZdq{}}\PYG{p}{,} \PYG{n+nb}{type}\PYG{o}{=}\PYG{n+nb}{float}\PYG{p}{,} \PYG{n}{default}\PYG{o}{=}\PYG{l+m+mf}{0.0}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} 追加}
+    \PYG{n}{arg\PYGZus{}parser}\PYG{o}{.}\PYG{n}{add\PYGZus{}argument}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZhy{}model\PYGZdq{}}\PYG{p}{,} \PYG{n+nb}{type}\PYG{o}{=}\PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{choices}\PYG{o}{=}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}resnet18k\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}resnet18\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}resnet34\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}resnet50\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}densenet121\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}mobilenetV2\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}vitB16\PYGZdq{}}\PYG{p}{],} \PYG{n}{help}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}モデルアーキテクチャの選択\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{arg\PYGZus{}parser}\PYG{o}{.}\PYG{n}{add\PYGZus{}argument}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}pt\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZhy{}pretrained\PYGZdq{}}\PYG{p}{,} \PYG{n+nb}{type}\PYG{o}{=}\PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{choices}\PYG{o}{=}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}SR\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}IN\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}INv1\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}INv2\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}INv3\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}INv4\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}FR\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}FDB1kv1\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}RCDB1kv1\PYGZdq{}}\PYG{p}{],} \PYG{n}{default}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}IN\PYGZdq{}}\PYG{p}{,} \PYG{n}{help}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}事前学習モデルの利用．指定しないと事前学習なし\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{arg\PYGZus{}parser}\PYG{o}{.}\PYG{n}{add\PYGZus{}argument}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}ds\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZhy{}dataset\PYGZdq{}}\PYG{p}{,} \PYG{n+nb}{type}\PYG{o}{=}\PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{choices}\PYG{o}{=}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}cifar10\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}cifar100\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}tinyImageNet\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}DTD\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}STL10\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}cannyShapeCifar10ColorV1\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}cifar100\PYGZus{}to\PYGZus{}10class\PYGZdq{}}\PYG{p}{],} \PYG{n}{default}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}cifar10\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{arg\PYGZus{}parser}\PYG{o}{.}\PYG{n}{add\PYGZus{}argument}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZhy{}num\PYGZus{}classes\PYGZdq{}}\PYG{p}{,} \PYG{n+nb}{type}\PYG{o}{=}\PYG{n+nb}{int}\PYG{p}{,} \PYG{n}{default}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{n}{help}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}分類クラス数\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{arg\PYGZus{}parser}\PYG{o}{.}\PYG{n}{add\PYGZus{}argument}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZhy{}resize\PYGZdq{}}\PYG{p}{,} \PYG{n}{action}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}store\PYGZus{}true\PYGZsq{}}\PYG{p}{,} \PYG{n}{help}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}224*224にresize,ViTはデフォルトでtrue\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{arg\PYGZus{}parser}\PYG{o}{.}\PYG{n}{add\PYGZus{}argument}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZhy{}imagesize\PYGZdq{}}\PYG{p}{,} \PYG{n+nb}{type}\PYG{o}{=}\PYG{n+nb}{int}\PYG{p}{,} \PYG{n}{help}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}resize=trueの場合指定サイズに変更\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{arg\PYGZus{}parser}\PYG{o}{.}\PYG{n}{add\PYGZus{}argument}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}bs\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZhy{}batch\PYGZus{}size\PYGZdq{}}\PYG{p}{,} \PYG{n+nb}{type}\PYG{o}{=}\PYG{n+nb}{int}\PYG{p}{,} \PYG{n}{default}\PYG{o}{=}\PYG{l+m+mi}{128}\PYG{p}{)}
+    \PYG{n}{arg\PYGZus{}parser}\PYG{o}{.}\PYG{n}{add\PYGZus{}argument}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}lr\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZhy{}learning\PYGZus{}rate\PYGZdq{}}\PYG{p}{,} \PYG{n+nb}{type}\PYG{o}{=}\PYG{n+nb}{float}\PYG{p}{,} \PYG{n}{default}\PYG{o}{=}\PYG{l+m+mf}{0.0001}\PYG{p}{)}
+    \PYG{n}{arg\PYGZus{}parser}\PYG{o}{.}\PYG{n}{add\PYGZus{}argument}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}seed\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZhy{}fix\PYGZus{}seed\PYGZdq{}}\PYG{p}{,} \PYG{n+nb}{type}\PYG{o}{=}\PYG{n+nb}{int}\PYG{p}{,} \PYG{n}{default}\PYG{o}{=}\PYG{l+m+mi}{42}\PYG{p}{)}
+
+    \PYG{k}{return} \PYG{n}{arg\PYGZus{}parser}\PYG{o}{.}\PYG{n}{parse\PYGZus{}args}\PYG{p}{()}
+
+\PYG{k}{if} \PYG{n+nv+vm}{\PYGZus{}\PYGZus{}name\PYGZus{}\PYGZus{}} \PYG{o}{==}\PYG{l+s+s1}{\PYGZsq{}\PYGZus{}\PYGZus{}main\PYGZus{}\PYGZus{}\PYGZsq{}}\PYG{p}{:}
+    \PYG{n}{warnings}\PYG{o}{.}\PYG{n}{filterwarnings}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}ignore\PYGZsq{}}\PYG{p}{)}
+    \PYG{k+kn}{import} \PYG{n+nn}{time}
+    \PYG{n}{start} \PYG{o}{=} \PYG{n}{time}\PYG{o}{.}\PYG{n}{perf\PYGZus{}counter}\PYG{p}{()}
+    \PYG{n}{main}\PYG{p}{()}
+
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{n}{time}\PYG{o}{.}\PYG{n}{perf\PYGZus{}counter}\PYG{p}{()} \PYG{o}{\PYGZhy{}} \PYG{n}{start}\PYG{p}{)}
+
+\end{Verbatim}
