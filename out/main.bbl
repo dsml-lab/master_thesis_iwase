@@ -38,9 +38,6 @@ A.~Krizhevsky, I.~Sutskever, and G.~E. Hinton, ``Imagenet classification with de
 K.~Simonyan and A.~Zisserman, ``Very deep convolutional networks for large-scale image recognition,'' in \emph{Proceedings of the International Conference on Learning Representations (ICLR)}, 2015. [Online]. Available: \url{https://arxiv.org/abs/1409.1556}
 \BIBentrySTDinterwordspacing
 
-\bibitem{ResNet}
-K.~He, X.~Zhang, S.~Ren, and J.~Sun, ``Deep residual learning for image recognition,'' in \emph{Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)}, 2016, pp. 770--778.
-
 \bibitem{Geirhos}
 R.~Geirhos, P.~Rubisch, C.~Michaelis, M.~Bethge, F.~A. Wichmann, and W.~Brendel, ``Imagenet-trained cnns are biased towards texture; increasing shape bias improves accuracy and robustness,'' in \emph{ICLR}, 2019.
 
@@ -48,7 +45,7 @@ R.~Geirhos, P.~Rubisch, C.~Michaelis, M.~Bethge, F.~A. Wichmann, and W.~Brendel,
 Y.~Ge, Y.~Xiao, Z.~Xu, X.~Wang, and L.~Itti, ``Contributions of shape, texture, and color in visual recognition,'' in \emph{ECCV}, S.~Avidan, G.~J. Brostow, M.~Ciss{\'{e}}, G.~M. Farinella, and T.~Hassner, Eds., 2022, pp. 369--386.
 
 \bibitem{DD_STB}
-U.~秀弥, 井. 中順, 横. 理央, 片. 裕雄, and 前. 英作, ``画像識別における形状・テクスチャ偏重度と二重降下現象の関係について,'' \emph{IEICE Conferences Archives}, vol. IEICE-122, no. IEICE-PRMU-404,IEICE-IBISML-405, pp. IEICE--PRMU--13,IEICE--IBISML--13--IEICE--PRMU--16,IEICE--IBISML--16, Feb. 2023.
+\UTF{9AD9}橋秀弥, 井上中順, 横田理央, 片岡裕雄, and 前田英作, ``画像識別における形状・テクスチャ偏重度と二重降下現象の関係について,'' \emph{IEICE Conferences Archives}, vol. IEICE-122, no. IEICE-PRMU-404,IEICE-IBISML-405, pp. IEICE--PRMU--13,IEICE--IBISML--13--IEICE--PRMU--16,IEICE--IBISML--16, Feb. 2023.
 
 \bibitem{icpr2024iwase}
 S.~Iwase, S.~Takahashi, N.~Inoue, R.~Yokota, R.~Nakamura, H.~Kataoka, and E.~Maeda, ``On the relationship between double descent of cnns and shape/texture bias under learning process,'' in \emph{"in press" International Conference on Pattern Recognition}, 2024.
