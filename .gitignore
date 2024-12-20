@@ -2,3 +2,6 @@
 /_minted-main/*
 /out/*
 *.pdf
+main.aux
+main.fdb_latexmk
+texput.fls
