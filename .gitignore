@@ -1,5 +1,5 @@
 /fig/*
-/_minted-main/*
+_minted-main
 out/*
 *.pdf
 main.aux
