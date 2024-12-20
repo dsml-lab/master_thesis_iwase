@@ -35,21 +35,22 @@
 \section{画像認識における形状・テクスチャ}
 Geirhosらは，ImageNetで学習したCNNが，分類のために特に画像のテクスチャを重視することを示した~\cite{Geirhos}．彼らは，相反する形状とテクスチャ情報を持つ画像をCNNに入力し，出力が形状ベースのラベルとテクスチャベースのラベルのどちらに一致するかをチェックした．この結果に基づいて，CNNが認識において形状とテクスチャのどちらを優先するかを分析した．
 一方，Islamらは，ニューロンの潜在表現に基づくモデルにおいて，形状とテクスチャのどちらを重視するかを定量的に判断する方法を提案した~\cite{Islam}．この方法によって，CNNがどの特徴に偏重するのかを定量的に分析することができる．この定量的に計算する手法の概要を
-% 図\ref{fig:Geirhos}に示す．
+図\ref{fig:IslamSTB}に示す．
 さらに，Geらは人間の視覚系のモデル化を試み，Human Vision System (HVS)を開発した．HVSは，画像分類時にどの特徴（形状，テクスチャ，色など）が最も重要な役割を果たすかを定量的に評価可能である\cite{Ge}．
-
-% \begin{figure}
-%     \centering
-%     \includegraphics[width=\linewidth]{fig/geirhos.pdf}
-%     \caption{形状バイアスとテクスチャバイアスの計算手法．}
-%     \label{fig:Geirhos}
-% \end{figure}
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=\linewidth]{fig/shapetexturebias.pdf}
     \caption{形状バイアスとテクスチャバイアスの概念図．Aの画像は人間、CNNどちらもテクスチャ情報から象と認識できる．また，Bの画像も猫と認識できる．
     しかし，Cの猫の画像に象のテクスチャを重ね合わせた場合，人間は猫と判断するが，CNNは象と分類する．}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{fig/IslamSTB.pdf}
+    \caption{形状バイアスとテクスチャバイアスの計算手法．
+    最終畳み込み層において，形状およびテクスチャの特徴に反応するニューロンの割合を作成したデータセットから計算する．}
+    \label{fig:IslamSTB}
 \end{figure}
 
 \newpage
