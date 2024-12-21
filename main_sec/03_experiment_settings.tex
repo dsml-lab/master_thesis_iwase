@@ -63,8 +63,9 @@ NIST Special Database 19から抽出・加工されたサブセットである�
     \item 各クラスターの中心座標を代表RGB値として採用する．これにより，色クラスの特徴空間を均等に配置し，人為的なバイアスを排除する．クラス代表間の平均距離は162.4，標準偏差は40.7であった．
     \item データ$x$に付与された色概念を$C_i$とするとき，3次元正規分布$N(\mu_i, \sigma^2)$からサンプリングされた3次元ベクトルを$x$のRGB値とする．
 \end{enumerate}
-色クラスの特徴空間を図\ref{fig:DistributionColors}に示す．それぞれのクラス感距離を表\ref{fig:color_class_distance}に示す.
-また，図\ref{fig:ColoredEMNIST}に各クラスの画像例の一覧を示す．
+色クラスの特徴空間を図\ref{fig:DistributionColors}に示す．
+また，それぞれのクラス間距離を表\ref{fig:color_class_distance}に示す.
+そして，図\ref{fig:ColoredEMNIST}に各クラスの画像例の一覧を示す．
 このデータセット設計により，合計100クラス（数字10クラス × 色10クラス）の分類タスクを実現した．
 
 \begin{figure}[H]
@@ -141,8 +142,8 @@ $\sigma = 0$の場合，代表RGB値のみが付与される．$\sigma = 10\sqrt
         \caption{$\sigma^2 = 10^4$}
         \label{fig:coloredeminst_10000}
     \end{subfigure}
-    \caption{Colored EMNISTデータセットにおける色概念の難易度調整例．各図は異なる$\sigma^2$値で生成されたサンプルを示している．$\sigma^2$が増加するにつれて，色概念のばらつきが大きくなる．}
-    \label{fig:coloredeminsts_2x2}
+    \caption{Colored EMNISTデータセットにおける色概念の難易度調整例．各図は異なるパラメータ$\sigma^2$で生成されたサンプルを示している．$\sigma^2$が増加するにつれて，色概念のばらつきが大きくなる．}
+    \label{fig:coloredeminsts}
 \end{figure}
 
 \section{ラベルノイズの付与}
