@@ -5,3 +5,4 @@ out/*
 main.aux
 main.fdb_latexmk
 texput.fls
+/table/*
