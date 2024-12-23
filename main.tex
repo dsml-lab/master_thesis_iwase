@@ -1,0 +1,155 @@
+% 文章クラス:1段組のA4報告書(和文)
+\documentclass[a4j,11pt]{jreport}
+\usepackage{amssymb}
+\usepackage{multirow} 
+\usepackage{midpage}
+\usepackage{float}
+
+% 文字のフォント指定
+\usepackage{mathptmx}
+\usepackage{newtxtext,newtxmath}
+\usepackage{subcaption}
+\renewcommand{\bfdefault}{bx} % 太字の代替フォントを設定
+% \usepackage{titlesec}
+% \titleformat*{\section}{\fontsize{12pt}{10pt}\selectfont\bf}
+% \titleformat*{\subsection}{\fontsize{10pt}{10pt}\selectfont\bf}
+
+\usepackage{titlesec}
+\titleformat*{\section}{\fontsize{14pt}{0pt}\selectfont\bf}
+\titleformat*{\subsection}{\fontsize{12pt}{0pt}\selectfont\bf}
+
+\usepackage{setspace}
+\usepackage{otf}%はしご高用
+\setstretch{1.2}
+
+
+%ヘッダーの設定
+% \usepackage{fancyhdr}
+% \usepackage{otf}
+%  \pagestyle{fancy}
+%     \lhead{\fontsize{10pt}{0pt}\selectfont{\ajRoman{2}}}
+%      \chead{}
+%     \rhead{}
+%数式の設定%
+\usepackage{amsmath}
+%表のページ跨がせるよう%
+\usepackage{longtable}
+\usepackage{array}
+
+\usepackage{comment}
+
+% 余白の設定（上下左右:2cm）
+\usepackage[margin=30truemm]{geometry}
+
+% 図と表の設定
+\usepackage[dvipdfmx]{graphicx}
+\renewcommand{\figurename}{Fig. }
+\renewcommand{\tablename}{Table}
+\setlength\intextsep{10pt} % 図の余白
+\setlength\textfloatsep{10pt} % 図の余白
+\usepackage{here}
+
+%tableやfigure内で図や表を出すためのコマンド
+\makeatletter
+\newcommand{\figcaption}[1]{\def\@captype{figure}\caption{#1}}
+\newcommand{\tblcaption}[1]{\def\@captype{table}\caption{#1}}
+\makeatother
+
+% 追加パッケージ
+\usepackage{comment}
+\usepackage{subcaption}
+\usepackage{url}
+\usepackage{multicol}
+\usepackage{CJKutf8}
+\usepackage[dvipdfmx]{hyperref}
+\usepackage{pxjahyper}
+\usepackage{otf}
+\usepackage{cleveref}
+\crefname{figure}{Fig.}{Figs.}
+\crefname{table}{Tab.}{Tabs.}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{siunitx}
+\usepackage{minted}
+
+% ドキュメント開始
+\begin{document}
+% ~~~表紙~~~
+\begin{titlepage}
+    \begin{center}
+        \fontsize{16.060pt}{24.090pt}\selectfont{修士論文}\\
+        \vspace{10.5pt}
+        \fontsize{16.060pt}{24.090pt}\selectfont{意味的な画像概念のDNN学習過程における汎化性能について}\\
+        \vspace{10.5pt}
+        \fontsize{12.045pt}{18.067pt}\selectfont{On generalization performance under DNN learning process of semantic image concepts}\\
+        \vspace{10.5pt}
+        \fontsize{12.045pt}{18.067pt}\selectfont{\quad}\\
+        \vspace{10.5pt}
+        \fontsize{12.045pt}{18.067pt}\selectfont{\quad}\\
+        \vspace{10.5pt}
+        \fontsize{12.045pt}{18.067pt}\selectfont{\quad}\\
+        \vspace{10.5pt}
+        \fontsize{12.045pt}{18.067pt}\selectfont{\quad}\\
+        \vspace{10.5pt}
+        \fontsize{12.045pt}{18.067pt}\selectfont{\quad}\\
+        \vspace{10.5pt}
+        \fontsize{12.045pt}{18.067pt}\selectfont{\quad}\\
+        \vspace{10.5pt}
+        \fontsize{12.045pt}{18.067pt}\selectfont{\quad}\\
+        \vspace{10.5pt}
+        \fontsize{12.045pt}{18.067pt}\selectfont{\quad}\\
+        \vspace{10.5pt}
+        \fontsize{12.045pt}{18.067pt}\selectfont{\quad}\\
+        \vspace{10.5pt}
+        \fontsize{16.060pt}{24.090pt}\selectfont{\quad}\\
+        \vspace{10.5pt}
+        \fontsize{16.060pt}{24.090pt}\selectfont{東京電機大学大学院 システムデザイン工学研究科}\\
+        \vspace{10.5pt}
+        \fontsize{16.060pt}{24.090pt}\selectfont{情報システム工学専攻 修士課程}\\
+        \vspace{10.5pt}
+        \fontsize{16.060pt}{24.090pt}\selectfont{23AMJ03 岩瀬 俊}\\
+        \vspace{10.5pt}
+        \fontsize{16.060pt}{24.090pt}\selectfont{研究指導教員 \quad 教授 前田 英作}\\
+        \vspace{10.5pt}
+    \end{center}
+\end{titlepage}
+
+% 文章開始
+
+
+\input{main_sec/00_abst}
+\tableofcontents
+\newpage
+\listoffigures
+\newpage
+\listoftables
+\newpage
+
+\input{main_sec/01_intro} 
+    
+\input{main_sec/02_relatedwork}
+
+\input{main_sec/03_experiment_settings}
+
+\input{main_sec/04_experiments}
+
+\input{main_sec/05_results}
+
+\input{main_sec/06_discussion}
+
+\input{main_sec/07_conclusion}
+
+\input{main_sec/08_futurework}
+
+\appendix
+\input{main_sec/zza_appendix}
+
+% \input{main_sec/zzb_appendix}
+
+% \input{main_sec/zzp_presentation}
+
+\bibliographystyle{IEEEtran}
+\bibliography{ref/mybibfile.bib}
+
+\end{document}
