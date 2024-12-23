@@ -2,6 +2,8 @@
 
 このリポジトリは、岩瀬俊の修士論文を管理するためのもの
 
+本論文は[こちら](https://github.com/dsml-lab/master_thesis_iwase/blob/main/out/main.pdf)
+
 ## 想定環境
 以下の環境で動作を確認しています：
 
