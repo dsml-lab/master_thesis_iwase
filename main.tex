@@ -4,6 +4,8 @@
 \usepackage{multirow} 
 \usepackage{midpage}
 \usepackage{float}
+\usepackage{listings}
+\usepackage{xcolor}
 
 % 文字のフォント指定
 \usepackage{mathptmx}
@@ -142,14 +144,14 @@
 
 \input{main_sec/08_futurework}
 
+\bibliographystyle{IEEEtran}
+\bibliography{ref/mybibfile.bib}
+
 \appendix
 \input{main_sec/zza_appendix}
 
-% \input{main_sec/zzb_appendix}
+\input{main_sec/zzb_appendix}
 
 % \input{main_sec/zzp_presentation}
-
-\bibliographystyle{IEEEtran}
-\bibliography{ref/mybibfile.bib}
 
 \end{document}
