@@ -4,5 +4,5 @@ main.aux
 main.fdb_latexmk
 texput.fls
 /table/*
-!out/main.pdf
 *.pdf
+!out/main.pdf
