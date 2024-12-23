@@ -33,9 +33,11 @@
 \end{figure}
 
 \section{画像認識における形状・テクスチャ}
-Geirhosらは，ImageNetで学習したCNNが，分類のために特に画像のテクスチャを重視することを示した~\cite{Geirhos}．彼らは，相反する形状とテクスチャ情報を持つ画像をCNNに入力し，出力が形状ベースのラベルとテクスチャベースのラベルのどちらに一致するかをチェックした．この結果に基づいて，CNNが認識において形状とテクスチャのどちらを優先するかを分析した．
-一方，Islamらは，ニューロンの潜在表現に基づくモデルにおいて，形状とテクスチャのどちらを重視するかを定量的に判断する方法を提案した~\cite{Islam}．この方法によって，CNNがどの特徴に偏重するのかを定量的に分析することができる．この定量的に計算する手法の概要を
-図\ref{fig:IslamSTB}に示す．
+Geirhosらは，ImageNetで学習したCNNが，分類のために特に画像のテクスチャを重視することを示した~\cite{Geirhos}．
+彼らは，形状とテクスチャ情報を持つ画像をCNNに入力し，その出力が形状ベースのラベルとテクスチャベースのラベルのどちらに一致するかを調査した．
+一方，Islamらは，ニューロンの潜在表現に基づくモデルにおいて，形状とテクスチャのどちらを重視するかを定量的に判断する方法を提案した~\cite{Islam}．
+この方法によって，CNNがどの特徴に偏重するのかを定量的に分析することができる．この定量的に計算する手法の概要を
+図\ref{fig:IslamSTB}に示す．また，使用した画像例を図\ref{fig:esserset}に示す．
 さらに，Geらは人間の視覚系のモデル化を試み，Human Vision System (HVS)を開発した．HVSは，画像分類時にどの特徴（形状，テクスチャ，色など）が最も重要な役割を果たすかを定量的に評価可能である\cite{Ge}．
 
 \begin{figure}[h]
@@ -53,6 +55,28 @@ Geirhosらは，ImageNetで学習したCNNが，分類のために特に画像�
     \label{fig:IslamSTB}
 \end{figure}
 
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[b]{0.19\linewidth}
+        \includegraphics[width=\linewidth]{fig/islam_dataset/islam_1.pdf}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.19\linewidth}
+        \includegraphics[width=\linewidth]{fig/islam_dataset/islam_2.pdf}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.19\linewidth}
+        \includegraphics[width=\linewidth]{fig/islam_dataset/islam_3.pdf}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.19\linewidth}
+        \includegraphics[width=\linewidth]{fig/islam_dataset/islam_4.pdf}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.19\linewidth}
+        \includegraphics[width=\linewidth]{fig/islam_dataset/islam_5.pdf}
+    \end{subfigure}
+    \caption{Islamらの提案した形状・テクスチャバイアスの計算手法時に使用する画像例．
+    同じ形状（飛行機）に異なるテクスチャを被せている．}
+    \label{fig:esserset}
+\end{figure}
+
 \newpage
 
 \section{画像認識における二重降下現象と形状・テクスチャバイアスの関係}
@@ -67,8 +91,11 @@ Geirhosらは，ImageNetで学習したCNNが，分類のために特に画像�
 \begin{figure}[tb]
     \centering
     \includegraphics[width=\linewidth]{fig/iwaseICPR.pdf}
-    \caption[ResNet18の学習過程における二重降下現象と形状・テクスチャバイアスの変化の同期性．]{ResNet18の学習過程における二重降下現象と形状・テクスチャバイアスの変化の同期性．ImageNetで事前学習済みのResNet18を使用し，CIFAR-10とCIFAR-100の学習を行った際のテストエラー率．また，それぞれのエポックでのモデルにおける形状・テクスチャバイアスを計算した結果．
-    二重降下現象を3つのフェーズに分けた際に，第1フェーズでは，テストエラー率が減少するときにはテキスチャバイアスが強くなる．次に過学習のタイミングで形状バイアスが強くなり，再度はエラー率が下がるときテクスチャバイアスを強くするように戻る．}
+    \caption[ResNet18の学習過程における二重降下現象と形状・テクスチャバイアスの変化の同期性．]{ResNet18の学習過程における二重降下現象と形状・テクスチャバイアスの変化の同期性．
+    上図は，ImageNetで事前学習済みのResNet18を使用し，CIFAR-10とCIFAR-100の学習を行った際のテストエラー率．
+    また，下図はそれぞれのエポックでのモデルにおける形状・テクスチャバイアスを計算した結果．
+    二重降下現象を3つのフェーズに分けた際に，第1フェーズでは，テストエラー率が減少するときにはテクスチャバイアスが強くなる．
+    次に過学習のタイミングで形状バイアスが強くなり，再度はエラー率が下がるときテクスチャバイアスを強くするように戻る．}
     \label{fig:iwaseICPR}
 \end{figure}
 
