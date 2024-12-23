@@ -1,7 +1,7 @@
 /fig/*
 _minted-main
-out/*
 !out/main.pdf
+out/*
 *.pdf
 main.aux
 main.fdb_latexmk
