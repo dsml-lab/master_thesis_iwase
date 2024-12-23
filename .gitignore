@@ -1,8 +1,0 @@
-!out/main.pdf
-/fig/*
-_minted-main
-out/*
-main.aux
-main.fdb_latexmk
-texput.fls
-/table/*
