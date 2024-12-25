@@ -1,6 +1,8 @@
 \chapter{結果}
+\label{chap:results}
 
-\begin{figure}
+
+\begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{fig/erroe_metrics_by_variances/error_metrics_by_label_noise_variance_0.pdf}
     \caption{$\sigma^2 = 0$のときのそれぞれのラベルノイズにおける結果}
@@ -40,4 +42,11 @@
     \includegraphics[width=\linewidth]{fig/test_error_heatmap_ln0.2.pdf}
     \caption{$\gamma = 0.2, \sigma^2 = 0$，のときのEpochとModel Widthによるテストエラーのヒートマップ}
     \label{fig:modelwidth_ln1000}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{fig/cnn_layers_comparison.pdf}
+    \caption{$\gamma = 0.5, \sigma^2 = 10^3$，のときのCNNの層の深さによる比較}
+    \label{fig:cnn_layers_comparison}
 \end{figure}
