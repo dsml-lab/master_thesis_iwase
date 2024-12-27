@@ -11,7 +11,7 @@ $\sigma$別に，それぞれのラベルノイズにおける詳細なエラー
     \item Phase3 : 訓練エラー率はさらに低下するが，テストエラー率の上昇は緩やかになる．
 \end{itemize}
 色と数字の学習に関して，色よりも数字のほうが訓練・テストエラー率が高いことから，数字よりも色の難易度が低く，学習しやすいことが確認できる．
-5層のCNNに関して，Phase1では，中段の結果を見ると興味深いことに，Colorの誤り率が50\% あたりで低下が停止し，Digit の精度向上を待っているような学習曲線を確認できる．
+5層のCNNに関して，Phase1では，中段の結果を見ると興味深いことに，Colorの誤り率が50\% あたりで低下が停止し，Digitの精度向上を待っているような学習曲線を確認できる．
 そして，どちらも50\% の訓練データに対する，誤り率が到達した後に，さらに低下を同時に始める．また，Phase2，3 においては，訓練データに対する誤り率をラベルノイズあり・
 なしで分けた結果を確認すると，ラベルノイズなしの誤り率で二重降下現象のような挙動を確認できる．ラベルノイズありに対する誤り率とテストデータに対する誤り率はPhase2，3において，
 低下し続けている．これらの低下に関しては，8層のCNNでも同じような挙動を示している．
@@ -48,8 +48,8 @@ $\sigma$別に，それぞれのラベルノイズにおける詳細なエラー
 \subsection{モデルの層による変化}
 8 層のCNN では，より深い層構造がもたらす効果が確認できる．図\ref{fig:5layer_results}，図\ref{fig:8layer_results}
 に$\gamma = 0.2，\sigma^2 = 0$の層による比較を示す．
-Phase1 において，テスト誤り率はより遅いタイミングでに低下し始める．そして，5層のCNN に比べ，テスト誤り率の上昇が抑制された．
-Phase3 においてはテスト誤り率の緩やかな上昇がさらに軽減される結果となった．また，8 層のCNN でもラベルノイズなしデータに対して二重降下現象が観測されたが，
+Phase1 において，テスト誤り率はより遅いタイミングでに低下し始める．そして，5層のCNNに比べ，テスト誤り率の上昇が抑制された．
+Phase3 においてはテスト誤り率の緩やかな上昇がさらに軽減される結果となった．また，8層のCNNでもラベルノイズなしデータに対して二重降下現象が観測されたが，
 その程度は5 層のCNN よりも小さく，より安定した学習が行われたことが示唆される．
 
 \begin{figure}[H]
@@ -140,7 +140,7 @@ Width 8のモデルは，最も早い段階（$10^0$エポック付近）から�
 \newpage
 
 \subsection{チャネル幅とエポック数によるテストエラー率の分析}
-図\ref{fig:modelwidth_heatmap}にエポックとチャネル幅の関係を表すヒートマップ示す．
+また，図\ref{fig:modelwidth_heatmap}にエポックとチャネル幅の関係を表すヒートマップ示す．
 テストエラー率のヒートマップ分析から，モデルのチャネル幅とエポック数の関係性について，以下の重要な知見が得られた．
 チャネル幅8のモデルは，最も効率的な学習挙動を示した．具体的には，エポック10付近から急速にテストエラー率が低下し，
 その後も安定して低いエラー率（約\SI{20}{\percent}）を維持している．
@@ -157,47 +157,13 @@ Width 8のモデルは，最も早い段階（$10^0$エポック付近）から�
 また，エポック100以降の長期的な学習挙動においても，チャネル幅による違いが明確に表れている．
 チャネル幅8のモデルは安定した低エラー率を維持する一方，他のチャネル幅では性能の変動や劣化が観察された．
 この結果は，適切なチャネル幅の設定が，モデルの長期的な学習安定性において極めて重要であることを示している．
-これらの知見から，本実験条件下ではチャネル幅8が最適であり，この設定により効率的な学習開始，安定した性能維持，
+これらの知見から，本実験条件下では，チャネルの幅が広いほど，より効率的な学習開始，安定した性能維持，
 および長期的な学習の安定性が実現されることが明らかとなった．この結果は，深層学習モデルの設計における重要な指針となり，特にチャネル幅の設定が学習性能に与える影響を定量的に示している．
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{fig/test_error_heatmap_ln0.2.pdf}
-    \caption{$\gamma = 0.2, \sigma^2 = 0$，のときのEpochとModel Widthによるテストエラーのヒートマップ}
+    \caption{$\gamma = 0.2, \sigma^2 = 0$のときのEpochとModel Widthによるテストエラーのヒートマップ．
+    モデルのチャネル幅が広くなると，過学習が早く発生することが確認できる．エポック軸に見てみると，例えば，8エポックで見てみると、width wiseで二重降下現象が確認できる}
     \label{fig:modelwidth_heatmap}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{fig/heatmap_ln/ln0.pdf}
-    \caption{a}
-    \label{fig:modelwidth_heatmap_0}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{fig/heatmap_ln/ln0.2.pdf}
-    \caption{a}
-    \label{fig:modelwidth_heatmap_0.2}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{fig/heatmap_ln/ln0.4.pdf}
-    \caption{a}
-    \label{fig:modelwidth_heatmap_0.4}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{fig/heatmap_ln/ln0.5.pdf}
-    \caption{a}
-    \label{fig:modelwidth_heatmap_0.5}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{fig/heatmap_ln/ln0.8.pdf}
-    \caption{a}
-    \label{fig:modelwidth_heatmap_0.8}
 \end{figure}
