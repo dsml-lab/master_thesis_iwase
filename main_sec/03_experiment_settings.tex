@@ -8,14 +8,6 @@
 従来のCNNの研究では，形状バイアスとテクスチャバイアスの学習過程に焦点が当てられてきた．特に，Islamらの研究では，形状とテクスチャを概念として設定して，
 CNNモデルの形状・テクスチャバイアスを定量的に計算する手法を提案している．Esserらが提案した定量的に計算する際に使用するデータセット例を以下に示す．
 
-% ここにエッサーのデータセット例を入れる
-% \begin{figure}
-%     \centering
-%     \includegraphics[width=0.8\linewidth]{fig/esserset.pdf}
-%     \caption{Esserらの提案した形状・テクスチャバイアスの計算手法．}
-%     \label{fig:esserset}
-% \end{figure}
-
 
 また，\UTF{9AD9}橋らの研究により，二重降下現象と形状・テクスチャバイアスの変化のタイミングに相関があることが示されている．
 しかし，形状やテクスチャという概念は，データセットから帰納的に定められるものであり，正確に定義することが難しく，より詳細な分析を行うことが困難である．
@@ -84,7 +76,7 @@ NIST Special Database 19から抽出・加工されたサブセットである�
 \begin{figure}[H]
     \centering
     \includegraphics[width=\columnwidth]{tables/Distance_Matrix_Heatmap_color.png}
-    \caption[色クラス間の平均距離を示すヒートマップ．]{
+    \caption[色クラス間の平均距離を示すヒートマップ]{
         色クラス間の平均距離を示すヒートマップ．
         各セルは，対応する色クラス間の平均距離を示しており，色クラス間の距離が均等に分布していることが確認できる．
     }
@@ -94,7 +86,7 @@ NIST Special Database 19から抽出・加工されたサブセットである�
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\columnwidth]{fig/coloredemnist_0.pdf}
-    \caption[Colored EMNISTデータセットの画像例．]{
+    \caption[Colored EMNISTデータセットの画像例]{
         Colored EMNISTデータセットの画像例．
         各数字クラス（0-9）に対して，10種類の色クラスがランダムに割り当てられている．
         このデータセットは，数字と色の概念を組み合わせた合計100クラスの分類タスクを提供する．
@@ -142,7 +134,7 @@ $\sigma = 0$の場合，代表RGB値のみが付与される．$\sigma^2 = 10^3,
         \caption{$\sigma^2 = 10^4$}
         \label{fig:coloredeminst_10000}
     \end{subfigure}
-    \caption{Colored EMNISTデータセットにおける色概念の難易度調整例．
+    \caption[Colored EMNISTデータセットにおける色概念の難易度調整例]{Colored EMNISTデータセットにおける色概念の難易度調整例．
     100枚の画像において，同じ列が色クラス，行が数字クラスを示している．
     各図は異なるパラメータ$\sigma^2$で生成されたサンプルを示している．$\sigma^2$が増加するにつれて，色概念のばらつきが大きくなる．
     }

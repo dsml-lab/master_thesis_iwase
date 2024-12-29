@@ -90,6 +90,19 @@ M.~D. Zeiler and R.~Fergus, ``Visualizing and understanding convolutional networ
 N.~Srivastava, G.~Hinton, A.~Krizhevsky, I.~Sutskever, and R.~Salakhutdinov, ``Dropout: A simple way to prevent neural networks from overfitting,'' \emph{Journal of Machine Learning Research}, vol.~15, no.~56, pp. 1929--1958, 2014. [Online]. Available: \url{http://jmlr.org/papers/v15/srivastava14a.html}
 \BIBentrySTDinterwordspacing
 
+\bibitem{Pezeshki22}
+\BIBentryALTinterwordspacing
+M.~Pezeshki, A.~Mitra, Y.~Bengio, and G.~Lajoie, ``Multi-scale feature learning dynamics: Insights for double descent,'' in \emph{Proceedings of the 39th International Conference on Machine Learning}, ser. Proceedings of Machine Learning Research, K.~Chaudhuri, S.~Jegelka, L.~Song, C.~Szepesvari, G.~Niu, and S.~Sabato, Eds., vol. 162.\hskip 1em plus 0.5em minus 0.4em\relax PMLR, 17--23 Jul 2022, pp. 17\,669--17\,690. [Online]. Available: \url{https://proceedings.mlr.press/v162/pezeshki22a.html}
+\BIBentrySTDinterwordspacing
+
+\bibitem{Jeffares2024}
+\BIBentryALTinterwordspacing
+A.~Jeffares, A.~Curth, and M.~van~der Schaar, ``Looking at deep learning phenomena through a telescoping lens,'' in \emph{High-dimensional Learning Dynamics 2024: The Emergence of Structure and Reasoning}, 2024. [Online]. Available: \url{https://openreview.net/forum?id=hJ7hfAzsuT}
+\BIBentrySTDinterwordspacing
+
+\bibitem{Arpit2017}
+D.~Arpit, S.~Jastrzundefinedbski, N.~Ballas, D.~Krueger, E.~Bengio, M.~S. Kanwal, T.~Maharaj, A.~Fischer, A.~Courville, Y.~Bengio, and S.~Lacoste-Julien, ``A closer look at memorization in deep networks,'' in \emph{Proceedings of the 34th International Conference on Machine Learning - Volume 70}, ser. ICML'17.\hskip 1em plus 0.5em minus 0.4em\relax JMLR.org, 2017, p. 233^^e2^^80^^93242.
+
 \bibitem{cohen2017emnist}
 G.~Cohen, S.~Afshar, J.~Tapson, and A.~van Schaik, ``Emnist: an extension of mnist to handwritten letters,'' 2017.
 

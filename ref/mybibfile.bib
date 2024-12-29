@@ -360,3 +360,40 @@
       primaryClass={cs.CV},
       url={https://arxiv.org/abs/2010.11929}, 
 }
+
+@inproceedings{Pezeshki22,
+  title = 	 {Multi-scale Feature Learning Dynamics: Insights for Double Descent},
+  author =       {Pezeshki, Mohammad and Mitra, Amartya and Bengio, Yoshua and Lajoie, Guillaume},
+  booktitle = 	 {Proceedings of the 39th International Conference on Machine Learning},
+  pages = 	 {17669--17690},
+  year = 	 {2022},
+  editor = 	 {Chaudhuri, Kamalika and Jegelka, Stefanie and Song, Le and Szepesvari, Csaba and Niu, Gang and Sabato, Sivan},
+  volume = 	 {162},
+  series = 	 {Proceedings of Machine Learning Research},
+  month = 	 {17--23 Jul},
+  publisher =    {PMLR},
+  pdf = 	 {https://proceedings.mlr.press/v162/pezeshki22a/pezeshki22a.pdf},
+  url = 	 {https://proceedings.mlr.press/v162/pezeshki22a.html},
+  abstract = 	 {An intriguing phenomenon that arises from the high-dimensional learning dynamics of neural networks is the phenomenon of “double descent”. The more commonly studied aspect of this phenomenon corresponds to <em>model-wise</em> double descent where the test error exhibits a second descent with increasing model complexity, beyond the classical U-shaped error curve. In this work, we investigate the origins of the less studied <em>epoch-wise</em> double descent in which the test error undergoes two non-monotonous transitions, or descents as the training time increases. We study a linear teacher-student setup exhibiting epoch-wise double descent similar to that in deep neural networks. In this setting, we derive closed-form analytical expressions describing the generalization error in terms of low-dimensional scalar macroscopic variables. We find that double descent can be attributed to distinct features being learned at different scales: as fast-learning features overfit, slower-learning features start to fit, resulting in a second descent in test error. We validate our findings through numerical simulations where our theory accurately predicts empirical findings and remains consistent with observations in deep neural networks.}
+}
+
+@inproceedings{Arpit2017,
+  author = {Arpit, Devansh and Jastrzundefinedbski, Stanis\l{}aw and Ballas, Nicolas and Krueger, David and Bengio, Emmanuel and Kanwal, Maxinder S. and Maharaj, Tegan and Fischer, Asja and Courville, Aaron and Bengio, Yoshua and Lacoste-Julien, Simon},
+  title = {A closer look at memorization in deep networks},
+  year = {2017},
+  publisher = {JMLR.org},
+  abstract = {We examine the role of memorization in deep learning, drawing connections to capacity, generalization, and adversarial robustness. While deep networks are capable of memorizing noise data, our results suggest that they tend to prioritize learning simple patterns first. In our experiments, we expose qualitative differences in gradient-based optimization of deep neural networks (DNNs) on noise vs. real data. We also demonstrate that for appropriately tuned explicit regularization (e.g., dropout) we can degrade DNN training performance on noise datasets without compromising generalization on real data. Our analysis suggests that the notions of effective capacity which are dataset independent are unlikely to explain the generalization performance of deep networks when trained with gradient based methods because training data itself plays an important role in determining the degree of memorization.},
+  booktitle = {Proceedings of the 34th International Conference on Machine Learning - Volume 70},
+  pages = {233–242},
+  numpages = {10},
+  location = {Sydney, NSW, Australia},
+  series = {ICML'17}
+}
+
+@inproceedings{Jeffares2024,
+  title={Looking at Deep Learning Phenomena Through a Telescoping Lens},
+  author={Alan Jeffares and Alicia Curth and Mihaela van der Schaar},
+  booktitle={High-dimensional Learning Dynamics 2024: The Emergence of Structure and Reasoning},
+  year={2024},
+  url={https://openreview.net/forum?id=hJ7hfAzsuT}
+}
