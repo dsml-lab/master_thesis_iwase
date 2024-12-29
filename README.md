@@ -19,8 +19,6 @@ cd master_thesis_iwase
 ```
 
 ## 関連するコード
-この修論に使用したコードはこちら
-https://github.com/dsml-lab/double_descent_and_shape_texture_bias
+この修論に使用したコードは[こちら](https://github.com/dsml-lab/double_descent_and_shape_texture_bias)
 
-結果はこちら
-https://wandb.ai/dsml-kernel24/dd_distribution_color_emnist_split_lossweight_20241109_gamma_sigma
+詳しい実験結果は[こちら](https://wandb.ai/dsml-kernel24/dd_distribution_color_emnist_split_lossweight_20241109_gamma_sigma)
