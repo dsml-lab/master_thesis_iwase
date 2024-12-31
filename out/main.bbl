@@ -23,10 +23,8 @@
 \bibitem{ILSVRC15}
 O.~Russakovsky, J.~Deng, H.~Su, J.~Krause, S.~Satheesh, S.~Ma, Z.~Huang, A.~Karpathy, A.~Khosla, M.~Bernstein, A.~C. Berg, and L.~Fei-Fei, ``Imagenet large scale visual recognition challenge,'' \emph{International Journal of Computer Vision}, vol. 115, no.~3, pp. 211--252, 2015.
 
-\bibitem{DBLP:conf/icml/BahdanauCB14}
-\BIBentryALTinterwordspacing
-D.~Bahdanau, K.~Cho, and Y.~Bengio, ``Neural machine translation by jointly learning to align and translate,'' in \emph{Proceedings of the 3rd International Conference on Learning Representations (ICLR)}, 2015. [Online]. Available: \url{http://arxiv.org/abs/1409.0473}
-\BIBentrySTDinterwordspacing
+\bibitem{SVM}
+M.~Hearst, S.~Dumais, E.~Osuna, J.~Platt, and B.~Scholkopf, ``Support vector machines,'' \emph{IEEE Intelligent Systems and their Applications}, vol.~13, no.~4, pp. 18--28, 1998.
 
 \bibitem{LeNet}
 \BIBentryALTinterwordspacing

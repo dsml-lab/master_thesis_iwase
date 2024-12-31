@@ -43,7 +43,7 @@
 \section{実験設定}
 \label{sec:experiment_settings}
 実験設定において，提案したデータセットに基づき，小程度から大程度までのCNNモデルを用いて学習を行う．
-今回の実験においては，5層のCNN，8層のCNN，そして，VGGNetを使って，学習過程を観察した．
+今回の実験においては，5層のCNN，8層のCNN，そして，16層のCNNを使って，学習過程を観察した．
 今回は，訓練データとテストデータに関して，以下の学習曲線を観察し，詳細な学習過程の分析を行う．その観察した学習曲線は，以下の通りである．
 
 
@@ -56,7 +56,7 @@
     \caption{モデル設定}
     \begin{tabular}{ll}
         \midrule
-        Model Layers & 5, 8, VGG \\
+        Model Layers & 5, 8, 16 \\
         Model Width & 1, 2, 4, 8 \\
         \bottomrule
     \end{tabular}
@@ -136,18 +136,44 @@ Width Multiplierは，モデルの幅を調整するためのパラメータで�
 
 \begin{table}[h]
     \centering
-    \caption{VGG16のアーキテクチャ}
-    \label{tab:vgg16}
+    \caption{16層CNNのアーキテクチャ}
+    \label{tab:cnn16layer}
     \begin{tabular}{lll}
     \toprule
     \textbf{Layer} & \textbf{Output Shape} & \textbf{Details} \\
     \midrule
-    Feature Extractor & $512 \cdot (\text{img size}/32)^2$ & Based on VGG16 configuration \\
-    Adaptive Pooling & $512 \cdot 7 \times 7$ & Output size fixed to $7 \times 7$ \\
-    Fully Connected & & \\
-    FC1 & $4096 \cdot \text{width multiplier}$ & Fully connected, ReLU, Dropout \\
-    FC2 & $4096 \cdot \text{width multiplier}$ & Fully connected, ReLU, Dropout \\
-    FC3 & $10$ & Fully connected, Output: 10 classes \\
+    Input & $3 \times 32 \times 32$ & RGB image \\
+    Conv1 & $64 \cdot \text{width multiplier} \times 32 \times 32$ & $3 \times 3$ kernel, stride 1, padding 1 \\
+    BatchNorm1 & Same as above & Normalization \\
+    ReLU1 & Same as above & Activation \\
+    Conv2 & $64 \cdot \text{width multiplier} \times 32 \times 32$ & $3 \times 3$ kernel, stride 1, padding 1 \\
+    BatchNorm2 & Same as above & Normalization \\
+    ReLU2 & Same as above & Activation \\
+    MaxPool2 & $64 \cdot \text{width multiplier} \times 16 \times 16$ & $2 \times 2$ kernel, stride 2 \\
+    Conv3 & $128 \cdot \text{width multiplier} \times 16 \times 16$ & $3 \times 3$ kernel, stride 1, padding 1 \\
+    BatchNorm3 & Same as above & Normalization \\
+    ReLU3 & Same as above & Activation \\
+    Conv4 & $128 \cdot \text{width multiplier} \times 16 \times 16$ & $3 \times 3$ kernel, stride 1, padding 1 \\
+    BatchNorm4 & Same as above & Normalization \\
+    ReLU4 & Same as above & Activation \\
+    MaxPool4 & $128 \cdot \text{width multiplier} \times 8 \times 8$ & $2 \times 2$ kernel, stride 2 \\
+    Conv5-7 & $256 \cdot \text{width multiplier} \times 8 \times 8$ & $3 \times (3 \times 3$ kernel, stride 1, padding 1) \\
+    BatchNorm5-7 & Same as above & $3 \times$ Normalization \\
+    ReLU5-7 & Same as above & $3 \times$ Activation \\
+    MaxPool7 & $256 \cdot \text{width multiplier} \times 4 \times 4$ & $2 \times 2$ kernel, stride 2 \\
+    Conv8-10 & $512 \cdot \text{width multiplier} \times 4 \times 4$ & $3 \times (3 \times 3$ kernel, stride 1, padding 1) \\
+    BatchNorm8-10 & Same as above & $3 \times$ Normalization \\
+    ReLU8-10 & Same as above & $3 \times$ Activation \\
+    MaxPool10 & $512 \cdot \text{width multiplier} \times 2 \times 2$ & $2 \times 2$ kernel, stride 2 \\
+    Conv11-13 & $512 \cdot \text{width multiplier} \times 2 \times 2$ & $3 \times (3 \times 3$ kernel, stride 1, padding 1) \\
+    BatchNorm11-13 & Same as above & $3 \times$ Normalization \\
+    ReLU11-13 & Same as above & $3 \times$ Activation \\
+    MaxPool13 & $512 \cdot \text{width multiplier} \times 1 \times 1$ & $2 \times 2$ kernel, stride 2 \\
+    Conv14-16 & $512 \cdot \text{width multiplier} \times 1 \times 1$ & $3 \times (3 \times 3$ kernel, stride 1, padding 1) \\
+    BatchNorm14-16 & Same as above & $3 \times$ Normalization \\
+    ReLU14-16 & Same as above & $3 \times$ Activation \\
+    Dropout & Same as above & Rate: 0.5 \\
+    Fully Connected & $512 \cdot (\text{img size}/32)^2 \times 10$ & Output: 10 classes \\
     \bottomrule
     \end{tabular}
 \end{table}
