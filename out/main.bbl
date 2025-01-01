@@ -71,6 +71,11 @@ K.~He, X.~Zhang, S.~Ren, and J.~Sun, ``Deep residual learning for image recognit
 \bibitem{Geirhos}
 R.~Geirhos, P.~Rubisch, C.~Michaelis, M.~Bethge, F.~A. Wichmann, and W.~Brendel, ``Imagenet-trained cnns are biased towards texture; increasing shape bias improves accuracy and robustness,'' in \emph{ICLR}, 2019.
 
+\bibitem{islam2021shape}
+\BIBentryALTinterwordspacing
+M.~A. Islam, M.~Kowal, P.~Esser, S.~Jia, B.~Ommer, K.~G. Derpanis, and N.~Bruce, ``Shape or texture: Understanding discriminative features in cnns,'' in \emph{International Conference on Learning Representations}, 2021. [Online]. Available: \url{https://openreview.net/forum?id=NcFEZOi-rLa}
+\BIBentrySTDinterwordspacing
+
 \bibitem{Ge}
 Y.~Ge, Y.~Xiao, Z.~Xu, X.~Wang, and L.~Itti, ``Contributions of shape, texture, and color in visual recognition,'' in \emph{ECCV}, S.~Avidan, G.~J. Brostow, M.~Ciss{\'{e}}, G.~M. Farinella, and T.~Hassner, Eds., 2022, pp. 369--386.
 
