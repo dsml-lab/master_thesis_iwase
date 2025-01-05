@@ -1,7 +1,6 @@
-/fig/*
 _minted-main
 main.aux
 main.fdb_latexmk
 texput.fls
-/table/*
+out/*
 !out/main.pdf
