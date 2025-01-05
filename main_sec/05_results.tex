@@ -172,6 +172,36 @@ Width 8のモデルは，最も早い段階（1エポック付近）から急速
     \centering
     \includegraphics[width=\linewidth]{fig/test_error_heatmap_ln0.2.pdf}
     \caption[$\gamma = 0.2, \sigma^2 = 0$のときのEpochとModel Widthによるテストエラーのヒートマップ]{$\gamma = 0.2, \sigma^2 = 0$のときのEpochとModel Widthによるテストエラーのヒートマップ．
-    モデルのチャネル幅が広くなると，過学習が早く発生することが確認できる．エポック軸に見てみると，例えば，8エポック付近では、width wiseで二重降下現象が確認できる}
+    モデルのチャネル幅が広くなると，過学習が早く発生することが確認できる．エポック軸に見てみると，例えば，8エポック付近では，width wiseで二重降下現象が確認できる}
     \label{fig:modelwidth_heatmap}
+\end{figure}
+
+\newpage
+
+\subsection{重み減衰を適応したときの影響}
+本研究では，データセット中に含まれるノイズ付きのサンプル（noisy samples）とノイズのないサンプル（clean samples）で損失関数への寄与度を差別化するため，
+\texttt{weight\_noisy} と \texttt{weight\_clean} という2つの重みを導入している．
+具体的には，各バッチ内の \texttt{noisy} サンプルおよび \texttt{clean} サンプルに対して，以下に示すように損失値を再スケーリングすることで，
+ノイズの影響をコントロールしつつクリーンなサンプルからの学習信号を最大限に活用するようにしている．
+
+\[
+\texttt{total\_weight} = \texttt{weight\_noisy} + \texttt{weight\_clean}
+\]
+
+\[
+\texttt{weights[idx\_noisy]} \;=\; \frac{\texttt{weight\_noisy}}{\texttt{total\_weight}} \times 2,
+\quad
+\texttt{weights[idx\_clean]} \;=\; \frac{\texttt{weight\_clean}}{\texttt{total\_weight}} \times 2
+\]
+
+このように重みを調整することで，ノイズを含むサンプルが過大に影響することを抑制しながら，
+クリーンなサンプルから得られる学習信号も十分に取り入れられるように工夫している．
+これにより，ノイズによる学習の不安定化を緩和したときの影響を観察する．
+その結果を図\ref{fig:weight_decay}に示す．
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{fig/weight_decay.pdf}
+    \caption{重み減衰を適応したときの結果}
+    \label{fig:weight_decay}
 \end{figure}
