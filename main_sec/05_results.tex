@@ -90,11 +90,13 @@ CNNモデルの層数による性能評価の実験結果について，以下�
 16層モデルは特徴的な学習パターンを示した．学習の初期段階（$10^2$エポック以前）では誤差の改善がほとんど見られず，その後急激な性能向上を示すという段階的な学習曲線を描いた．
 また，学習後期（$10^3$エポック以降）では損失値の大きな振動が観察され，過学習の傾向が最も顕著であった．
 さらに，ノイズを含むデータに対する性能低下が他のモデルと比較して著しく，モデルの深さと頑健性のトレードオフが明確に表れる結果となった．
-この実験結果から，単純にモデルの層を深くすることが必ずしも性能向上につながるわけではなく，タスクの複雑さに応じて適切な層数を選択することの重要性が示唆された．
+この実験結果から，単純にモデルの層を深くすることが必ずしも性能向上につながるわけではなく，タスクの複雑さに応じて適切な層数を選択することの重要性が示唆された．'
+
+\newpage
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.4\linewidth]{fig/layer_comparison/cnn_layers_comparison.pdf}
+    \includegraphics[width=0.6\linewidth]{fig/layer_comparison/cnn_layers_comparison.pdf}
     \caption{$\gamma = 0.5, \sigma^2 = 10^3$，のときのCNNの層の深さによる比較}
     \label{fig:cnn_layers_comparison}
 \end{figure}
@@ -139,9 +141,11 @@ Width 8のモデルは，最も早い段階（1エポック付近）から急速
 これらの結果から，チャネル幅の拡大は，学習の収束速度，最終的な性能，過学習の抑制，およびノイズに対する頑健性の全ての面で有意な改善をもたらすことが示された．
 特に，本実験で検証したパラメータの範囲では，Width 8が最適なチャネル幅であることが明らかとなった．さらに，タスクの複雑さとチャネル幅の関係性において，より複雑な特徴抽出を必要とするタスクほど，十分なチャネル幅が重要であることが示唆された．
 
+\newpage
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\linewidth]{fig/modelwidth_ln0.2.pdf}
+    \includegraphics[width=0.7\linewidth]{fig/modelwidth_ln0.2.pdf}
     \caption{$\gamma = 0.2, \sigma^2 = 0$，のときのmodel width別の結果}
     \label{fig:modelwidth_ln02}
 \end{figure}
