@@ -83,7 +83,7 @@ Y.~Ge, Y.~Xiao, Z.~Xu, X.~Wang, and L.~Itti, ``Contributions of shape, texture, 
 \UTF{9AD9}橋秀弥, 井上中順, 横田理央, 片岡裕雄, and 前田英作, ``画像識別における形状・テクスチャ偏重度と二重降下現象の関係について,'' \emph{IEICE Conferences Archives}, vol. IEICE-122, no. IEICE-PRMU-404,IEICE-IBISML-405, pp. IEICE--PRMU--13,IEICE--IBISML--13--IEICE--PRMU--16,IEICE--IBISML--16, Feb. 2023.
 
 \bibitem{icpr2024iwase}
-S.~Iwase, S.~Takahashi, N.~Inoue, R.~Yokota, R.~Nakamura, H.~Kataoka, and E.~Maeda, ``On the relationship between double descent of cnns and shape/texture bias under learning process,'' in \emph{"in press" International Conference on Pattern Recognition}, 2024.
+S.~Iwase, S.~Takahashi, N.~Inoue, R.~Yokota, R.~Nakamura, H.~Kataoka, and E.~Maeda, ``On the relationship between double descent of cnns and shape/texture bias under learning process,'' in \emph{International Conference on Pattern Recognition}, 2024.
 
 \bibitem{DBLP:conf/cvpr/ZeilerF14}
 M.~D. Zeiler and R.~Fergus, ``Visualizing and understanding convolutional networks,'' in \emph{Proceedings of the European Conference on Computer Vision (ECCV)}, 2014, pp. 818--833.

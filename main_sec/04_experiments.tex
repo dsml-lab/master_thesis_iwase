@@ -110,7 +110,7 @@ Width Multiplierは，モデルの幅を調整するためのパラメータで�
     MaxPool4 & $128 \cdot \text{width multiplier} \times 4 \times 4$ & $2 \times 2$ kernel, stride 2 \\
     Conv5 & $256 \cdot \text{width multiplier} \times 4 \times 4$ & $3 \times 3$ kernel, stride 1, padding 1 \\
     ReLU5 & Same as above & Activation \\
-    Fully Connected & $256 \cdot (\text{img size}/8)^2 \times 10$ & Output: 10 classes \\
+    Fully Connected & $256 \cdot (\text{img size}/8)^2 \times 100$ & Output: 100 classes \\
     \bottomrule
     \end{tabular}
 \end{table}
@@ -131,7 +131,7 @@ Width Multiplierは，モデルの幅を調整するためのパラメータで�
     ReLU7 & Same as above & Activation \\
     Conv8 & $512 \cdot \text{width multiplier} \times 2 \times 2$ & $3 \times 3$ kernel, stride 1, padding 1 \\
     ReLU8 & Same as above & Activation \\
-    Fully Connected & $512 \cdot (\text{img size}/16)^2 \times 10$ & Output: 10 classes \\
+    Fully Connected & $512 \cdot (\text{img size}/16)^2 \times 100$ & Output: 100 classes \\
     \bottomrule
     \end{tabular}
 \end{table}
@@ -175,7 +175,7 @@ Width Multiplierは，モデルの幅を調整するためのパラメータで�
     BatchNorm14-16 & Same as above & $3 \times$ Normalization \\
     ReLU14-16 & Same as above & $3 \times$ Activation \\
     Dropout & Same as above & Rate: 0.5 \\
-    Fully Connected & $512 \cdot (\text{img size}/32)^2 \times 10$ & Output: 10 classes \\
+    Fully Connected & $512 \cdot (\text{img size}/32)^2 \times 100$ & Output: 100 classes \\
     \bottomrule
     \end{tabular}
 \end{table}
