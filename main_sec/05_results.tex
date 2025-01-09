@@ -14,9 +14,9 @@ $\sigma$別に，それぞれのラベルノイズにおける詳細なエラー
 5層のCNNに関して，Phase1では，中段の結果を見ると興味深いことに，Colorの誤り率が50\% あたりで低下が停止し，Digitの精度向上を待っているような学習曲線を確認できる．
 そして，どちらも50\% の訓練データに対する，誤り率が到達した後に，さらに低下を同時に始める．また，Phase2，3 においては，訓練データに対する誤り率をラベルノイズあり・
 なしで分けた結果を確認すると，ラベルノイズなしの誤り率で二重降下現象のような挙動を確認できる．ラベルノイズありに対する誤り率とテストデータに対する誤り率はPhase2，3において，
-低下し続けている．これらの低下に関しては，8層のCNNでも同じような挙動を示している．
-また，このラベルノイズに対する挙動は，Nakkiranの二重降下現象を確認した設定でも確認した．その結果を図\ref{fig:errors_by_label_noise_variance_0}，図\ref{fig:errors_by_label_noise_variance_1000}，
-図\ref{fig:errors_by_label_noise_variance_3612}，図\ref{fig:errors_by_label_noise_variance_10000}に示す．
+低下し続けている．これらの低下に関しては，後述する8層のCNNでも同じような挙動を示している．
+また，このラベルノイズに対する挙動は，Nakkiranの二重降下現象を確認した設定でも確認した．5層のCNNモデルにおける$\sigma$別の結果を図\ref{fig:errors_by_label_noise_variance_0}，図\ref{fig:errors_by_label_noise_variance_1000}，
+図\ref{fig:errors_by_label_noise_variance_3612}に，Nakkiranの設定における結果を図\ref{fig:errors_by_label_noise_variance_10000}に示す．
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{fig/erroe_metrics_by_variances/error_metrics_by_label_noise_variance_0.pdf}
@@ -90,7 +90,7 @@ CNNモデルの層数による性能評価の実験結果について，以下�
 16層モデルは特徴的な学習パターンを示した．学習の初期段階（$10^2$エポック以前）では誤差の改善がほとんど見られず，その後急激な性能向上を示すという段階的な学習曲線を描いた．
 また，学習後期（$10^3$エポック以降）では損失値の大きな振動が観察され，過学習の傾向が最も顕著であった．
 さらに，ノイズを含むデータに対する性能低下が他のモデルと比較して著しく，モデルの深さと頑健性のトレードオフが明確に表れる結果となった．
-この実験結果から，単純にモデルの層を深くすることが必ずしも性能向上につながるわけではなく，タスクの複雑さに応じて適切な層数を選択することの重要性が示唆された．'
+この実験結果から，単純にモデルの層を深くすることが必ずしも性能向上につながるわけではなく，タスクの複雑さに応じて適切な層数を選択することの重要性が示唆された．
 
 \newpage
 
